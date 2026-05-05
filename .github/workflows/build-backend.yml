@@ -61,8 +61,6 @@ jobs:
           distribution: 'temurin'
 
       - name: Build
-        env:
-          CXXFLAGS: "-Wno-error=return-type -Wno-error=c99-designator"
         run: ./gradlew build --stacktrace
 
       - name: Start backend and health check
