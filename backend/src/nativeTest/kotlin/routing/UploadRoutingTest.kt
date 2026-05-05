@@ -36,7 +36,7 @@ class UploadRoutingTest {
     private var port: Int = 0
 
     @BeforeTest
-    suspend fun setup() {
+    fun setup() {
         if (!::server.isInitialized) {
             rm = FakeResourceManager()
             server = embeddedServer(io.ktor.server.cio.CIO, port = 0) {
@@ -44,17 +44,10 @@ class UploadRoutingTest {
                 configureRouting(rm, FakeFmuService())
             }
             server.start()
-            port = server.engine.resolvedConnectors().first().port
+            port = runBlocking { server.engine.resolvedConnectors() }.first().port
             client = HttpClient(CIO)
         }
         rm.reset()
-    }
-
-    @AfterTest
-    fun teardown() {
-        // Intentionally empty: server and client are torn down only once, in
-        // the last-test cleanup below.  If your test runner supports
-        // @AfterClass on the instance, move stop/close there instead.
     }
 
     // Helper so every test shares the same upload URL without repeating the port.

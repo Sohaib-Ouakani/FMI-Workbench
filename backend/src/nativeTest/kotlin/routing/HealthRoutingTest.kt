@@ -20,8 +20,9 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
 
 // The server has no per-test mutable state, so it is started once for the
-// entire class and torn down afterwards.  This avoids the port-rebinding race
-// that occurs when @BeforeTest/@AfterTest restart it around every method.
+// entire class via a lazy-init guard in @BeforeTest.
+// NOTE: @BeforeTest/@AfterTest must NOT be suspend on Kotlin/Native.
+//       Use runBlocking explicitly for any coroutine work.
 class HealthRoutingTest {
 
     private lateinit var server: EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>
@@ -29,20 +30,15 @@ class HealthRoutingTest {
     private var port: Int = 0
 
     @BeforeTest
-    suspend fun startServer() {
+    fun startServer() {
+        if (::server.isInitialized) return
         server = embeddedServer(io.ktor.server.cio.CIO, port = 0) {
             configureCors()
             configureRouting(FakeResourceManager(), FakeFmuService())
         }
         server.start()
-        port = server.engine.resolvedConnectors().first().port
+        port = runBlocking { server.engine.resolvedConnectors() }.first().port
         client = HttpClient(CIO)
-    }
-
-    @AfterTest
-    fun stopServer() {
-        client.close()
-        server.stop(gracePeriodMillis = 0, timeoutMillis = 0)
     }
 
     // ── /health ───────────────────────────────────────────────────────────────
