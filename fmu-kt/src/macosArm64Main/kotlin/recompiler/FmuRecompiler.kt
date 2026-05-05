@@ -37,7 +37,9 @@ class FmuRecompiler {
      fun recompile(inputFmu: String, outputFmu: String) {
         val input = fs.pathAbsolute(inputFmu)
         val output = fs.pathAbsolute(outputFmu)
-        check(fs.fileExists(input)) { "FMU not found: $input" }
+        if(!fs.fileExists(input)) {
+            throw IllegalArgumentException("FMU not found: $input")
+        }
 
         packager.withTempDir { tmp ->
             val extracted = "$tmp/extracted"
