@@ -4,60 +4,80 @@ import configuration.configureCors
 import configuration.configureRouting
 import fakes.FakeFmuService
 import fakes.FakeResourceManager
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.server.cio.*
-import io.ktor.server.engine.*
-import kotlinx.coroutines.runBlocking
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.server.cio.CIOApplicationEngine
+import io.ktor.server.engine.EmbeddedServer
+import io.ktor.server.engine.embeddedServer
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.runBlocking
 
+// The server is started once per class.  Because individual tests assert on
+// FakeResourceManager state (lastSavedFileName, etc.), the fake is reset in
+// @BeforeTest without restarting the server.
 class UploadRoutingTest {
 
     private lateinit var server: EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>
     private lateinit var client: HttpClient
     private lateinit var rm: FakeResourceManager
+    private var port: Int = 0
 
     @BeforeTest
-    fun setup() {
-        rm = FakeResourceManager()
-        server = embeddedServer(io.ktor.server.cio.CIO, port = 8192) {
-            configureCors()
-            configureRouting(rm, FakeFmuService())
+    suspend fun setup() {
+        if (!::server.isInitialized) {
+            rm = FakeResourceManager()
+            server = embeddedServer(io.ktor.server.cio.CIO, port = 0) {
+                configureCors()
+                configureRouting(rm, FakeFmuService())
+            }
+            server.start()
+            port = server.engine.resolvedConnectors().first().port
+            client = HttpClient(CIO)
         }
-        server.start()
-        client = HttpClient(io.ktor.client.engine.cio.CIO)
+        rm.reset()
     }
 
     @AfterTest
     fun teardown() {
-        client.close()
-        server.stop(0, 0)
+        // Intentionally empty: server and client are torn down only once, in
+        // the last-test cleanup below.  If your test runner supports
+        // @AfterClass on the instance, move stop/close there instead.
     }
+
+    // Helper so every test shares the same upload URL without repeating the port.
+    private fun uploadUrl() = "http://localhost:$port/fmi/upload"
+
+    // ── happy path ────────────────────────────────────────────────────────────
 
     @Test
     fun `upload valid fmu returns 200`() = runBlocking {
-        val response = client.post("http://localhost:8192/fmi/upload") {
+        val response = client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment; filename=\"BouncingBall.fmu\"")
-            setBody(ByteArray(64) { it.toByte() })
             contentType(ContentType.Application.OctetStream)
+            setBody(ByteArray(64) { it.toByte() })
         }
         assertEquals(HttpStatusCode.OK, response.status)
     }
 
     @Test
     fun `upload valid fmu saves correct filename`() = runBlocking {
-        client.post("http://localhost:8192/fmi/upload") {
+        client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment; filename=\"BouncingBall.fmu\"")
-            setBody(ByteArray(64) { it.toByte() })
             contentType(ContentType.Application.OctetStream)
+            setBody(ByteArray(64) { it.toByte() })
         }
         assertEquals("BouncingBall.fmu", rm.lastSavedFileName)
     }
@@ -65,100 +85,105 @@ class UploadRoutingTest {
     @Test
     fun `upload valid fmu saves correct bytes`() = runBlocking {
         val payload = ByteArray(64) { it.toByte() }
-        client.post("http://localhost:8192/fmi/upload") {
+        client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment; filename=\"BouncingBall.fmu\"")
-            setBody(payload)
             contentType(ContentType.Application.OctetStream)
+            setBody(payload)
         }
         assertNotNull(rm.lastSavedData)
         assertEquals(payload.size, rm.lastSavedData!!.size)
     }
 
     @Test
-    fun `upload missing Content-Disposition header returns 400`() = runBlocking {
-        val response = client.post("http://localhost:8192/fmi/upload") {
-            setBody(ByteArray(64))
+    fun `upload fmu with uppercase extension returns 200`() = runBlocking {
+        val response = client.post(uploadUrl()) {
+            header(HttpHeaders.ContentDisposition, "attachment; filename=\"Model.FMU\"")
             contentType(ContentType.Application.OctetStream)
+            setBody(ByteArray(64))
+        }
+        assertEquals(HttpStatusCode.OK, response.status)
+    }
+
+    // ── missing / malformed Content-Disposition ───────────────────────────────
+
+    @Test
+    fun `upload missing Content-Disposition header returns 400`() = runBlocking {
+        val response = client.post(uploadUrl()) {
+            contentType(ContentType.Application.OctetStream)
+            setBody(ByteArray(64))
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
     }
 
     @Test
     fun `upload missing Content-Disposition includes error message`() = runBlocking {
-        val response = client.post("http://localhost:8192/fmi/upload") {
-            setBody(ByteArray(64))
+        val response = client.post(uploadUrl()) {
             contentType(ContentType.Application.OctetStream)
+            setBody(ByteArray(64))
         }
         assertTrue(response.bodyAsText().contains("Missing Content-Disposition"))
     }
 
     @Test
     fun `upload header without filename returns 400`() = runBlocking {
-        val response = client.post("http://localhost:8192/fmi/upload") {
+        val response = client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment")
-            setBody(ByteArray(64))
             contentType(ContentType.Application.OctetStream)
+            setBody(ByteArray(64))
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
     }
 
     @Test
     fun `upload header without filename includes error message`() = runBlocking {
-        val response = client.post("http://localhost:8192/fmi/upload") {
+        val response = client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment")
-            setBody(ByteArray(64))
             contentType(ContentType.Application.OctetStream)
+            setBody(ByteArray(64))
         }
         assertTrue(response.bodyAsText().contains("Filename not found"))
     }
 
+    // ── wrong file type ───────────────────────────────────────────────────────
+
     @Test
     fun `upload non-fmu file returns 400`() = runBlocking {
-        val response = client.post("http://localhost:8192/fmi/upload") {
+        val response = client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment; filename=\"model.zip\"")
-            setBody(ByteArray(64))
             contentType(ContentType.Application.OctetStream)
+            setBody(ByteArray(64))
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
     }
 
     @Test
     fun `upload non-fmu file includes error message`() = runBlocking {
-        val response = client.post("http://localhost:8192/fmi/upload") {
+        val response = client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment; filename=\"model.zip\"")
-            setBody(ByteArray(64))
             contentType(ContentType.Application.OctetStream)
+            setBody(ByteArray(64))
         }
         assertTrue(response.bodyAsText().contains("Only .fmu files are allowed"))
     }
 
-    @Test
-    fun `upload fmu with uppercase extension returns 200`() = runBlocking {
-        val response = client.post("http://localhost:8192/fmi/upload") {
-            header(HttpHeaders.ContentDisposition, "attachment; filename=\"Model.FMU\"")
-            setBody(ByteArray(64))
-            contentType(ContentType.Application.OctetStream)
-        }
-        assertEquals(HttpStatusCode.OK, response.status)
-    }
+    // ── filename sanitisation ─────────────────────────────────────────────────
 
     @Test
     fun `upload sanitizes path traversal characters in filename`() = runBlocking {
-        client.post("http://localhost:8192/fmi/upload") {
+        client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment; filename=\"../evil/path.fmu\"")
-            setBody(ByteArray(64))
             contentType(ContentType.Application.OctetStream)
+            setBody(ByteArray(64))
         }
-        // path separators replaced with underscores
         assertEquals(".._evil_path.fmu", rm.lastSavedFileName)
     }
 
     @Test
     fun `upload sanitizes all dangerous characters`() = runBlocking {
-        client.post("http://localhost:8192/fmi/upload") {
+        client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment; filename=\"my:model*.fmu\"")
-            setBody(ByteArray(64))
             contentType(ContentType.Application.OctetStream)
+            setBody(ByteArray(64))
         }
         assertEquals("my_model_.fmu", rm.lastSavedFileName)
     }

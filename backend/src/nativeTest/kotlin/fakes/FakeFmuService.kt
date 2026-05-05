@@ -46,4 +46,11 @@ class FakeFmuService : FmuService {
     override fun close() {
         closeCalled = true
     }
+
+    fun reset() {
+        loadedPaths = null
+        closeCalled = false
+        throwOnLoad = null
+        throwOnGetInfo = null
+    }
 }

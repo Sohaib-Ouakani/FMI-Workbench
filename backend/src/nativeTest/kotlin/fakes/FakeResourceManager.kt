@@ -28,4 +28,11 @@ class FakeResourceManager : ResourceManagerService {
     override fun cleanup() {
         cleanupCalled = true
     }
+
+    fun reset() {
+        lastSavedFileName = null
+        lastSavedData = null
+        cleanupCalled = false
+        throwOnFmuPaths = null
+    }
 }

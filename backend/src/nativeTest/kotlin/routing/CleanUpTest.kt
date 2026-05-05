@@ -11,15 +11,18 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
 
 class CleanUpTest {
+
     @Test
     fun `fmu service is closed when server stops`() = runBlocking {
         val fmu = FakeFmuService()
-        val s = embeddedServer(CIO, port = 8199) {
+        // port = 0 lets the OS pick a free port, avoiding any collision
+        // with the other test-server classes.
+        val server = embeddedServer(CIO, port = 0) {
             configureCors()
             configureRouting(FakeResourceManager(), fmu)
         }
-        s.start()
-        s.stop(0, 0)
+        server.start()
+        server.stop(gracePeriodMillis = 0, timeoutMillis = 0)
         assertTrue(fmu.closeCalled)
     }
 }
