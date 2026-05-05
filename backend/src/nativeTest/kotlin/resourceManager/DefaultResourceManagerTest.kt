@@ -19,7 +19,7 @@ class DefaultResourceManagerTest {
     fun setup() {
         // Unique per-test directory: pid + random int guards against both
         // inter-process collisions and same-process parallel test runs.
-        tmpDir = "/tmp/rm_test_${platform.posix.getpid()}_${Random.nextInt(Int.MAX_VALUE)}"
+        tmpDir = "/tmp/rm_test_${Random.nextInt()}"
         platform.posix.mkdir(tmpDir, 511u) // 0o777
     }
 
