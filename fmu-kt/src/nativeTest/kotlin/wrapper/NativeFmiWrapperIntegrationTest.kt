@@ -125,6 +125,7 @@ class NativeFmiWrapperIntegrationTest {
             w.setupExperiment(SimulationConfig(startTime = 0.0, stopTime = 0.1, stepSize = 0.01))
             val result = w.executeExperiment()
             assertEquals(11, result.timestamps.size)
+            w.close()
         } finally { deleteDir(tmp) }
     }
 
@@ -140,6 +141,7 @@ class NativeFmiWrapperIntegrationTest {
             w2.setupExperiment(SimulationConfig(stopTime = 0.05))
             val result = w2.executeExperiment()
             assertEquals(varCount, result.variables.size)
+            w.close()
         } finally {
             deleteDir(tmp1)
             deleteDir(tmp2)
@@ -156,6 +158,7 @@ class NativeFmiWrapperIntegrationTest {
             result.variables.values.forEach { values ->
                 assertEquals(result.timestamps.size, values.size)
             }
+            w.close()
         } finally { deleteDir(tmp) }
     }
 
@@ -168,6 +171,7 @@ class NativeFmiWrapperIntegrationTest {
             w.setupExperiment(config)
             val result = w.executeExperiment()
             assertEquals(config, result.config)
+            w.close()
         } finally { deleteDir(tmp) }
     }
 
