@@ -7,12 +7,14 @@ on:
 
 jobs:
   build-and-test:
+    name: Build & Test - ${{ matrix.name }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
             target: linuxX64
+            name: Linux X64
             binary: backend/build/bin/linuxX64/releaseExecutable/backend.kexe
             run_binary: ./backend/build/bin/linuxX64/releaseExecutable/backend.kexe
             health_check: |
@@ -21,6 +23,7 @@ jobs:
 
           - os: macos-latest
             target: macosArm64
+            name: macOS ARM64
             binary: backend/build/bin/macosArm64/releaseExecutable/backend.kexe
             run_binary: ./backend/build/bin/macosArm64/releaseExecutable/backend.kexe
             health_check: |
@@ -29,6 +32,7 @@ jobs:
 
           - os: windows-latest
             target: mingwX64
+            name: Windows X64
             binary: backend/build/bin/mingwX64/releaseExecutable/backend.exe
             run_binary: ""   # handled separately in pwsh step below
 
