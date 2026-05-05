@@ -142,6 +142,7 @@ class NativeFmiWrapperIntegrationTest {
             val result = w2.executeExperiment()
             assertEquals(varCount, result.variables.size)
             w.close()
+            w2.close()
         } finally {
             deleteDir(tmp1)
             deleteDir(tmp2)
