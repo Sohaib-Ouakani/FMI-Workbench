@@ -61,4 +61,10 @@ class HealthRoutingTest {
         val response = client.get("http://localhost:8191/")
         assertTrue(response.bodyAsText().isNotBlank())
     }
+
+    @Test
+    fun `unknown route returns 404`() = runBlocking {
+        val response = client.get("http://localhost:8191/does-not-exist")
+        assertEquals(HttpStatusCode.NotFound, response.status)
+    }
 }
