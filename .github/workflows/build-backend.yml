@@ -63,6 +63,13 @@ jobs:
       - name: Build
         run: ./gradlew build --stacktrace
 
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: fmu-kt/build/reports/tests/
+
       - name: Start backend and health check
         shell: pwsh
         run: |
