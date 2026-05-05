@@ -2,7 +2,9 @@ name: Build and Test Backend
 
 on:
   push:
-    branches:
+    branches-ignore:
+      - 'main'
+      - 'ci-test'
   workflow_dispatch:
 
 jobs:
