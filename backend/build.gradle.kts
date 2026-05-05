@@ -89,11 +89,13 @@ kotlin {
         }
     }
 
+    //fix for warnings related to expect/actual mechanisms
     targets.all {
         compilations.all {
             compileTaskProvider.configure {
                 compilerOptions {
                     freeCompilerArgs.add("-Xexpect-actual-classes")
+                    freeCompilerArgs.add("-Xno-werror")
                 }
             }
         }
