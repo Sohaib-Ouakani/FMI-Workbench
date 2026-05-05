@@ -5,7 +5,6 @@ import configuration.configureRouting
 import fakes.FakeFmuService
 import fakes.FakeResourceManager
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -50,9 +49,7 @@ class FmiInfoRoutingTest {
     @Test
     fun `info endpoint returns json content type`() = runBlocking {
         val response = client.get("http://localhost:8194/fmi/info")
-        assertTrue(
-            response.contentType()?.match(ContentType.Application.Json) == true
-        )
+        assertEquals(response.contentType()?.match(ContentType.Application.Json), true)
     }
 
     @Test
