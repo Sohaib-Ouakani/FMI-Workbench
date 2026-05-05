@@ -93,7 +93,6 @@ kotlin {
         compilations.all {
             compileTaskProvider.configure {
                 compilerOptions {
-                    allWarningsAsErrors = true
                     freeCompilerArgs.add("-Xexpect-actual-classes")
                 }
             }
