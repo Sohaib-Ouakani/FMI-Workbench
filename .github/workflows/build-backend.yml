@@ -19,7 +19,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build
-        run: ./gradlew build
+        run: ./gradlew build --stacktrace
 
       - name: Start backend and health check
         run: |
@@ -40,7 +40,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build
-        run: ./gradlew build
+        run: ./gradlew build --stacktrace
 
       - name: Start backend and health check
         run: |
@@ -61,7 +61,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build
-        run: ./gradlew build
+        run: ./gradlew build --stacktrace
 
       - name: Start backend and health check
         shell: pwsh
