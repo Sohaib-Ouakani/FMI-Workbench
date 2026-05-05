@@ -109,6 +109,11 @@ kotlin {
                 implementation(libs.ksoup.kotlinxIo)
             }
         }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
     }
 
     targets.configureEach {
