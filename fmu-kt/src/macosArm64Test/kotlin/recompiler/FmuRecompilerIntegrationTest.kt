@@ -48,7 +48,7 @@ class FmuRecompilerIntegrationTest {
 
     @Test
     fun `recompile throws for non-existent input fmu`() {
-        assertFailsWith<IllegalStateException> {
+        assertFailsWith<IllegalArgumentException> {
             FmuRecompiler().recompile("/does/not/exist.fmu", "/tmp/out.fmu")
         }
     }

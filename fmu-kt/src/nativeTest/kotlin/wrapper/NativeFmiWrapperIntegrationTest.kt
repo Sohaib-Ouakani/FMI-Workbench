@@ -61,7 +61,7 @@ class NativeFmiWrapperIntegrationTest {
     fun `wrapper fails with non-existent fmu path`() {
         val tmp = tempDir("badpath")
         try {
-            assertFailsWith<IllegalStateException> {
+            assertFailsWith<IllegalArgumentException> {
                 NativeFmiWrapper("/does/not/exist.fmu", "$tmp/extracted", "$tmp/models", createPreprocessor())
             }
         } finally { deleteDir(tmp) }
