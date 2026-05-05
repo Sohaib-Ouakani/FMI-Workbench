@@ -114,3 +114,8 @@ val copyFmilibDllForWindows by tasks.registering(Copy::class) {
 tasks.matching { it.name == "linkReleaseExecutableMingwX64" }.configureEach {
     finalizedBy(copyFmilibDllForWindows)
 }
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile>()
+    .configureEach {
+        compilerOptions.freeCompilerArgs.add("-Xno-return-type-werror")
+    }
