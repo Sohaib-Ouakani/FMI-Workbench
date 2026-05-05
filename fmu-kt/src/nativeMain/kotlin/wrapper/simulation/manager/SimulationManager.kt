@@ -133,11 +133,14 @@ class SimulationManager(
                 println("---- Simulation Start ----")
 
                 while (time < stopTime) {
+                    val remaining = stopTime - time
+                    if (remaining <= 0.0) break
+                    val actualStep = minOf(step, remaining)
 
                     fmi2_import_do_step(
                         fmiStruct,
                         time,
-                        step,
+                        actualStep,
                         1
                     )
 
@@ -153,7 +156,7 @@ class SimulationManager(
                         results[varName]!!.add(valueArray[i])
                     }
 
-                    time += step
+                    time += actualStep
                 }
 
                 println("---- Simulation End ----")
@@ -200,5 +203,7 @@ class SimulationManager(
         if (status != 0) {
             throw IllegalStateException("Failed to instantiate the simulation")
         }
+
+        isSimulationSetup = true
     }
 }
