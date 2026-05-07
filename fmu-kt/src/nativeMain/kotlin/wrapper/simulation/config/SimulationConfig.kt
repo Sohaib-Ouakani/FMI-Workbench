@@ -1,5 +1,7 @@
 package wrapper.simulation.config
 
+import kotlinx.serialization.Serializable
+
 /**
  * Configuration parameters for running an FMU simulation.
  * Defines the time parameters, numerical settings, and output specifications for the simulation.
@@ -11,6 +13,7 @@ package wrapper.simulation.config
  * @property experimentName A name for the experiment instance. Defaults to "Default".
  * @property outputVariables List of variable names to record during simulation. If empty, records all variables.
  */
+@Serializable
 data class SimulationConfig(
     val startTime: Double = 0.0,
     val stopTime: Double? = null,

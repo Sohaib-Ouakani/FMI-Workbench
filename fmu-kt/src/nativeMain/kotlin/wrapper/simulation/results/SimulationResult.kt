@@ -1,5 +1,6 @@
 package wrapper.simulation.results
 
+import kotlinx.serialization.Serializable
 import wrapper.simulation.config.SimulationConfig
 
 /**
@@ -11,6 +12,7 @@ import wrapper.simulation.config.SimulationConfig
  * Each variable has a list of values corresponding to the timestamps.
  * @property config The [SimulationConfig] used to run the simulation.
  */
+@Serializable
 data class SimulationResult (
     val timestamps: List<Double>,
     val variables: Map<String, List<Double>>,
