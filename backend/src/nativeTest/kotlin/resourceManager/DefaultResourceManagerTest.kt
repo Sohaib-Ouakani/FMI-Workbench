@@ -39,7 +39,7 @@ class DefaultResourceManagerTest {
         SystemFileSystem.delete(path)
     }
 
-    private fun resourceManager() = DefaultResourceManager(tmpDir)
+    private fun resourceManager() = DefaultResourceManager("$tmpDir/fake-executable")
 
     // ── fmuPaths ─────────────────────────────────────────────────────────────
 
