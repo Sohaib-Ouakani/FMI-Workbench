@@ -1,5 +1,6 @@
 package fmu
 
+import preprocessor.FmuPreprocessor
 import preprocessor.factory.createPreprocessor
 import wrapper.NativeFmiWrapper
 import wrapper.fmuData.info.FmuInfo
@@ -20,7 +21,9 @@ import wrapper.simulation.results.SimulationResult
  * @property fmuInfo FMU metadata including model name, description, and available variables.
  * @throws IllegalArgumentException if the FMU cannot be loaded or is corrupted.
  */
-class DefaultFmu : FmuService {
+class DefaultFmu(
+    private val preprocessor: FmuPreprocessor
+) : FmuService {
     private var wrapper: NativeFmiWrapper? = null
 
     /**
@@ -39,7 +42,7 @@ class DefaultFmu : FmuService {
             paths.fmuPath,
             paths.extractedDir,
             paths.modelsDir,
-            createPreprocessor()
+            preprocessor
         )
     }
 
