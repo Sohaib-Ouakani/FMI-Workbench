@@ -19,6 +19,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
+import requestHandler.RequestHandler
 
 // The server is started once per class via a lazy-init guard.
 // Because tests mutate rm/fmu to inject errors, those fakes are reset in
@@ -39,7 +40,7 @@ class FmiInitRoutingTest {
             fmu = FakeFmuService()
             server = embeddedServer(io.ktor.server.cio.CIO, port = 0) {
                 configureCors()
-                configureRouting(rm, fmu)
+                configureRouting(RequestHandler(rm, fmu))
             }
             server.start()
             port = runBlocking { server.engine.resolvedConnectors() }.first().port

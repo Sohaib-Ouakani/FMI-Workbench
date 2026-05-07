@@ -18,6 +18,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
+import requestHandler.RequestHandler
 
 // The server has no per-test mutable state, so it is started once for the
 // entire class via a lazy-init guard in @BeforeTest.
@@ -34,7 +35,7 @@ class HealthRoutingTest {
         if (::server.isInitialized) return
         server = embeddedServer(io.ktor.server.cio.CIO, port = 0) {
             configureCors()
-            configureRouting(FakeResourceManager(), FakeFmuService())
+            configureRouting(RequestHandler(FakeResourceManager(), FakeFmuService()))
         }
         server.start()
         port = runBlocking { server.engine.resolvedConnectors() }.first().port

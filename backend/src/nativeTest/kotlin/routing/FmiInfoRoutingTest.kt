@@ -19,10 +19,11 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
+import requestHandler.RequestHandler
 
 // The server is started once per class via a lazy-init guard.
 // fmu is reset in @BeforeTest so per-test error injection never leaks.
-// NOTE: @BeforeTest/@AfterTest must NOT be suspend function on Kotlin/Native.
+// NOTE: @BeforeTest/@AfterTest must NOT be a suspend function on Kotlin/Native.
 class FmiInfoRoutingTest {
 
     private lateinit var server: EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>
@@ -36,7 +37,7 @@ class FmiInfoRoutingTest {
             fmu = FakeFmuService()
             server = embeddedServer(io.ktor.server.cio.CIO, port = 0) {
                 configureCors()
-                configureRouting(FakeResourceManager(), fmu)
+                configureRouting(RequestHandler(FakeResourceManager(), fmu))
             }
             server.start()
             port = runBlocking { server.engine.resolvedConnectors() }.first().port

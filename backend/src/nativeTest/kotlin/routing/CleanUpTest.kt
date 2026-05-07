@@ -9,6 +9,7 @@ import io.ktor.server.engine.embeddedServer
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
+import requestHandler.RequestHandler
 
 class CleanUpTest {
 
@@ -19,7 +20,7 @@ class CleanUpTest {
         // with the other test-server classes.
         val server = embeddedServer(CIO, port = 0) {
             configureCors()
-            configureRouting(FakeResourceManager(), fmu)
+            configureRouting(requestHandler = RequestHandler(FakeResourceManager(), fmu))
         }
         server.start()
         server.stop(gracePeriodMillis = 0, timeoutMillis = 0)

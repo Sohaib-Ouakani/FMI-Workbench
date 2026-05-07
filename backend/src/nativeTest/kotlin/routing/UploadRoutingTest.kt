@@ -23,6 +23,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
+import requestHandler.RequestHandler
 
 // The server is started once per class.  Because individual tests assert on
 // FakeResourceManager state (lastSavedFileName, etc.), the fake is reset in
@@ -40,7 +41,7 @@ class UploadRoutingTest {
             rm = FakeResourceManager()
             server = embeddedServer(io.ktor.server.cio.CIO, port = 0) {
                 configureCors()
-                configureRouting(rm, FakeFmuService())
+                configureRouting(RequestHandler(rm, FakeFmuService()))
             }
             server.start()
             port = runBlocking { server.engine.resolvedConnectors() }.first().port
