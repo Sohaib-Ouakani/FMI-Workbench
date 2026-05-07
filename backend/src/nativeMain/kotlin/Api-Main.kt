@@ -4,16 +4,19 @@ import fmu.DefaultFmu
 import io.ktor.server.application.ApplicationStopped
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
+import preprocessor.factory.createPreprocessor
+import requestHandler.RequestHandler
 import resources.manager.DefaultResourceManager
 
 fun main(args: Array<String>) {
     val arg = args.firstOrNull()
     val resourceManager = DefaultResourceManager(arg)
-    val fmuService = DefaultFmu()
+    val fmuService = DefaultFmu(createPreprocessor())
+    val requestHandler = RequestHandler(resourceManager, fmuService)
 
     val server = embeddedServer(CIO, port = 8080) {
         configureCors()
-        configureRouting(resourceManager, fmuService)
+        configureRouting(requestHandler)
 
         monitor.subscribe(ApplicationStopped) {
             resourceManager.cleanup()
