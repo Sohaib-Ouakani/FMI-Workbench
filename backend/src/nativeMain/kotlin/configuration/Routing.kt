@@ -37,6 +37,13 @@ fun Application.configureRouting(requestHandler: RequestHandler) {
             post("/upload") {
                 requestHandler.upload(call)
             }
+
+            route("/simulate") {
+                post {
+                    requestHandler.simulate(call)
+                }
+            }
+
         }
     }
 }

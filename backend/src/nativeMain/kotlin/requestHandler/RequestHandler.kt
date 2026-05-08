@@ -5,6 +5,7 @@ import io.ktor.http.ContentDisposition
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.header
+import io.ktor.server.request.receive
 import io.ktor.server.request.receiveChannel
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
@@ -14,6 +15,7 @@ import io.ktor.utils.io.readRemaining
 import kotlinx.io.readByteArray
 import logger.BackendLogger
 import resources.manager.ResourceManagerService
+import wrapper.simulation.config.SimulationConfig
 
 class RequestHandler(
     private val resourceManager: ResourceManagerService,
@@ -84,6 +86,48 @@ class RequestHandler(
         resourceManager.saveUpload(safeName, bytes)
         call.respondText("File '$safeName' salvato.", status = HttpStatusCode.OK)
     }
+
+    suspend fun simulate(call: RoutingCall) {
+        val info = try {
+            fmuService.getInfo()
+        } catch (e: Exception) {
+            call.respondText(
+                "Cannot simulate: FMU not loaded. Call /fmi/init first.",
+                status = HttpStatusCode.BadRequest,
+            )
+            return
+        }
+
+        if (!info.canSimulate) {
+            call.respondText(
+                "Simulation is not supported for Model Exchange FMUs.",
+                status = HttpStatusCode.UnprocessableEntity,
+            )
+            return
+        }
+
+        val config = try {
+            call.receive<SimulationConfig>()
+        } catch (e: Exception) {
+            call.respondText(
+                "Invalid simulation config: ${e.message}",
+                status = HttpStatusCode.BadRequest,
+            )
+            return
+        }
+
+        try {
+            val result = fmuService.simulate(config)
+            call.respond(result)
+        } catch (e: Exception) {
+            BackendLogger.e("Simulation failed: ${e.message}", e)
+            call.respondText(
+                "Simulation failed: ${e.message}",
+                status = HttpStatusCode.InternalServerError,
+            )
+        }
+    }
+
 
     fun close(){
         fmuService.close()
