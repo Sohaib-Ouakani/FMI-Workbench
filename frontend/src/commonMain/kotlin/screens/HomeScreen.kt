@@ -25,6 +25,7 @@ import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.name
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
+import screens.InfoScreen
 
 class HomeScreen() : Screen{
 
