@@ -25,6 +25,7 @@ class DefaultFmu(
     private val preprocessor: FmuPreprocessor
 ) : FmuService {
     private var wrapper: NativeFmiWrapper? = null
+    private var loadedFmuPath: String? = null
 
     /**
      * Closes the FMU and releases all associated resources.
@@ -34,10 +35,13 @@ class DefaultFmu(
     override fun close() {
         wrapper?.close()
         wrapper = null
+        loadedFmuPath = null
     }
 
     override fun load(paths: FmuPaths) {
+        if (paths.fmuPath == loadedFmuPath && wrapper != null) return
         close()
+        loadedFmuPath = paths.fmuPath
         wrapper = NativeFmiWrapper(
             paths.fmuPath,
             paths.extractedDir,
