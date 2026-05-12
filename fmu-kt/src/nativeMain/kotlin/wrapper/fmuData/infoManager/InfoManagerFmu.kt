@@ -8,6 +8,7 @@ import libfmi.fmi2_fmu_kind_cs
 import libfmi.fmi2_fmu_kind_me
 import libfmi.fmi2_fmu_kind_me_and_cs
 import libfmi.fmi2_fmu_kind_unknown
+import libfmi.fmi2_import_free_variable_list
 import libfmi.fmi2_import_get_author
 import libfmi.fmi2_import_get_default_experiment_start
 import libfmi.fmi2_import_get_default_experiment_step
@@ -56,6 +57,8 @@ class InfoManagerFmu(private val fmiStruct: CPointer<fmi2_import_t>) {
             val name = fmi2_import_get_variable_name(variable)?.toKString().orEmpty()
             varibles.add(name)
         }
+
+        fmi2_import_free_variable_list(varList)
 
         return FmuInfo(
             fmi2_import_get_model_name(fmiStruct)?.toKString(),

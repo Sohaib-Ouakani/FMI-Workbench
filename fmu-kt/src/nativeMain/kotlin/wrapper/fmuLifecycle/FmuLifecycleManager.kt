@@ -89,10 +89,10 @@ class FmuLifecycleManager(val fmuFile: String, val unpackDir: String) {
      * @throws IllegalStateException if an error occurs during resource cleanup.
      */
     fun close() {
-        fmi2_import_terminate(fmiStruct)
-        fmi2_import_free_instance(fmiStruct)
-        fmi2_import_destroy_dllfmu(fmiStruct)
-        fmi2_import_free(fmiStruct)
+        val s = fmiStruct ?: return
+        fmi2_import_destroy_dllfmu(s)
+        fmi2_import_free(s)
+        fmiStruct = null
         fmi_import_free_context(context)
     }
 
