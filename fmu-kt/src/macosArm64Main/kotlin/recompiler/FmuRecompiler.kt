@@ -1,5 +1,6 @@
 package recompiler
 
+import logger.FmuKtLogger
 import platform.posix.F_OK
 import platform.posix.access
 import utility.ClangComplier
@@ -94,8 +95,10 @@ class FmuRecompiler {
 
             val binDest = "$extracted/binaries/darwin64"
             exec.run("mkdir", "-p", binDest)
+            FmuKtLogger.d("modelId at cp step: '$modelId'")
             exec.run("cp", universal, "$binDest/$modelId.dylib")
 
+            FmuKtLogger.d("binary at: $binDest/$modelId.dylib exists=${fs.fileExists("$binDest/$modelId.dylib")}")
             packager.zip(extracted, output)
         }
     }
