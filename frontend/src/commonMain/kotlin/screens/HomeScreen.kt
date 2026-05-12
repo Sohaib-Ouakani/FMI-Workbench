@@ -3,8 +3,10 @@ package com.example.fmi_client.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -14,6 +16,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -35,6 +38,7 @@ class HomeScreen() : Screen{
         val navigator = LocalNavigator.currentOrThrow
         var info by remember { mutableStateOf<JsonObject?>(null) }
         var fileName by remember { mutableStateOf<String?>(null) }
+        var isLoading by remember { mutableStateOf(false) }
 
         val launcher = rememberFilePickerLauncher (
             mode = FileKitMode.Single,
@@ -67,17 +71,30 @@ class HomeScreen() : Screen{
                     Text("To view info about the fmu click below")
                     Button(onClick = {
                         scope.launch {
+                            isLoading = true
                             try {
                                 info = fetchInfo()
                                 info?.let { navigator.push(InfoScreen(it)) }
                             } catch (e: Exception) {
                                 println("Error fetching info: ${e.message}")
                                 info = null
+                            } finally {
+                                isLoading = false
                             }
                         }
 
-                    }) {
-                        Text("Click me!")
+                    },
+                        enabled = !isLoading
+
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text("View Info")
+                        }
                     }
 
                     Text("To upload a new FMI click below")
