@@ -12,6 +12,9 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.RoutingCall
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readRemaining
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.withContext
 import kotlinx.io.readByteArray
 import logger.BackendLogger
 import resources.manager.ResourceManagerService
@@ -23,7 +26,7 @@ class RequestHandler(
 ) {
     suspend fun init(call: RoutingCall) {
         try {
-            fmuService.load(resourceManager.fmuPaths())
+            withContext(Dispatchers.IO) { fmuService.load(resourceManager.fmuPaths()) }
         } catch (e: NoSuchElementException) {
             BackendLogger.e("No FMU uploaded yet")
             call.respondText(e.message ?: "No FMU uploaded", status = HttpStatusCode.BadRequest)
@@ -117,7 +120,7 @@ class RequestHandler(
         }
 
         try {
-            val result = fmuService.simulate(config)
+            val result = withContext(Dispatchers.IO) { fmuService.simulate(config) }
             call.respond(result)
         } catch (e: Exception) {
             BackendLogger.e("Simulation failed: ${e.message}", e)
