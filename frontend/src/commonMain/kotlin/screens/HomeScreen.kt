@@ -308,7 +308,7 @@ private fun InspectPanel(
                 InfoEntry("Step 1", "Select and upload an .fmu file")
                 InfoEntry("Step 2", "Inspect model metadata and variables")
                 InfoEntry("Step 3", "Configure and run simulation")
-                InfoEntry("Step 4", "Visualize results in interactive chart")
+                InfoEntry("Step 4", "Visualize results chart")
             }
 
             EngButton(
