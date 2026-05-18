@@ -4,6 +4,7 @@ on:
     branches-ignore:
       - 'dependabot/**'
       - 'ci-test'
+      - 'feat/simualtion'
     paths-ignore:
       - '.gitignore'
       - '.mergify.yml'
