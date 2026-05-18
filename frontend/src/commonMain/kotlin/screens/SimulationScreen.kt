@@ -33,7 +33,7 @@ import com.example.fmi_client.client.SimulationConfig
 import com.example.fmi_client.client.runSimulation
 import kotlinx.coroutines.launch
 
-private const val MAX_SELECTED_VARIABLES = 6
+private const val MAX_SELECTED_VARIABLES = 10
 
 class SimulationScreen(private val variables: List<String>) : Screen {
 
