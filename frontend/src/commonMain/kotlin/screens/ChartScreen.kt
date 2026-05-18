@@ -37,16 +37,16 @@ import kotlin.math.round
 
 // Engineering palette for data series — distinct and readable on dark bg
 private val seriesColors = listOf(
-    Color(0xFF003366),   // very dark blue
-    Color(0xFFCC3333),   // medium red
-    Color(0xFF339933),   // medium green
-    Color(0xFFFF9933),   // bright orange
-    Color(0xFF8B34FF),   // rebecca purple
-    Color(0xFF996633),   // tan brown
-    Color(0xFFFF66B2),   // light pink
-    Color(0xFF33CCCC),   // bright teal
-    Color(0xFF888888),   // gray
-    Color(0xFFCCA300),   // dark gold
+    Color(0xFF003366),
+    Color(0xFFCC3333),
+    Color(0xFF339933),
+    Color(0xFFFF9933),
+    Color(0xFF8B34FF),
+    Color(0xFF996633),
+    Color(0xFFFF66B2),
+    Color(0xFF33CCCC),
+    Color(0xFF888888),
+    Color(0xFFCCA300),
 )
 
 class ChartScreen(private val result: SimulationResult) : Screen {
