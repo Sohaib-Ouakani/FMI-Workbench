@@ -28,11 +28,3 @@ jobs:
       || startsWith(github.head_ref, 'dependabot/')
     steps:
       - run: 'true'
-  ci-cd:
-    needs:
-      - dispatcher
-    uses: ./.github/workflows/build-and-deploy.yml
-    permissions:
-      contents: write
-      packages: write
-    secrets: inherit
