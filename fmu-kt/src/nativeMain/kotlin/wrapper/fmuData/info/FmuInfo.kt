@@ -25,6 +25,6 @@ data class FmuInfo(
     val defaultExperimentStop: Double = 1.0,
     val defaultExperimentStep: Double = 0.01,
     val fmuKind: String?,
-    val variables: List<String>,
+    val variables: Map<String, String>,
     val canSimulate: Boolean,
 )

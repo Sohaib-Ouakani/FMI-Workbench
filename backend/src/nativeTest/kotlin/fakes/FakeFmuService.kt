@@ -21,7 +21,7 @@ class FakeFmuService : FmuService {
         defaultExperimentStop = 1.0,
         defaultExperimentStep = 0.01,
         fmuKind = "Co-Simulation",
-        variables = listOf("variable1", "variable2"),
+        variables = mapOf("variable1" to "kg", "variable2" to "m"),
         canSimulate = true
     )
 

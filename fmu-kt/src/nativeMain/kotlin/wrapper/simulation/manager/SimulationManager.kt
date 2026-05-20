@@ -30,7 +30,7 @@ import wrapper.simulation.results.SimulationResult
  * Orchestrates the complete simulation workflow from configuration to result retrieval.
  * Handles variable resolution, simulation stepping, and output collection at specified intervals.
  *
- * @property lifecycleManager Reference to the [FmuLifecycleManager] managing the FMU structure.
+ * @property fmiStruct FMU structure.
  * @property infoManagerFmu Reference to the [InfoManagerFmu] for FMU metadata queries.
  */
 @OptIn(ExperimentalForeignApi::class)
@@ -104,7 +104,7 @@ class SimulationManager(
 
         // Determina quali variabili leggere
         val variablesToRead = config.outputVariables.ifEmpty {
-            fmuInfo.variables  // tutte le variabili dell'FMU
+            fmuInfo.variables.keys  // tutte le variabili dell'FMU
         }
 
         val timestamps = mutableListOf<Double>()

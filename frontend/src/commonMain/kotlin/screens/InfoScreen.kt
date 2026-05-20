@@ -32,8 +32,8 @@ class InfoScreen(val info: JsonObject) : Screen {
     override fun Content() {
         val navigator   = LocalNavigator.currentOrThrow
         val canSimulate = info["canSimulate"]?.jsonPrimitive?.boolean ?: false
-        val variables   = (info["variables"] as? JsonArray)
-            ?.map { it.jsonPrimitive.content } ?: emptyList()
+        val variables: Map<String, String> = (info["variables"] as? JsonObject)
+            ?.mapValues { it.value.jsonPrimitive.content } ?: emptyMap()
 
         // Separate metadata fields from the variables/canSimulate keys
         val metaEntries = info.entries
@@ -117,8 +117,8 @@ class InfoScreen(val info: JsonObject) : Screen {
                             )
                             Spacer(Modifier.height(8.dp))
                             LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                items(variables) { variable ->
-                                    VariableChip(variable)
+                                items(variables.keys.toList()) { name ->
+                                    VariableChip(name, variables[name].orEmpty())
                                 }
                             }
                         }
@@ -196,7 +196,7 @@ class InfoScreen(val info: JsonObject) : Screen {
     }
 
     @Composable
-    private fun VariableChip(name: String) {
+    private fun VariableChip(name: String, mesure: String) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -212,7 +212,12 @@ class InfoScreen(val info: JsonObject) : Screen {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-        }
+            Text(
+                text = "[$mesure]",
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )        }
         Spacer(modifier = Modifier.height(1.dp))
     }
 }

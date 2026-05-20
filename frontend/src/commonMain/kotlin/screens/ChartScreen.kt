@@ -49,7 +49,10 @@ private val seriesColors = listOf(
     Color(0xFFCCA300),
 )
 
-class ChartScreen(private val result: SimulationResult) : Screen {
+class ChartScreen(
+    private val result: SimulationResult,
+    private val variableUnits: Map<String, String> = emptyMap()
+) : Screen {
 
     @OptIn(ExperimentalKoalaPlotApi::class)
     @Composable
@@ -136,6 +139,7 @@ class ChartScreen(private val result: SimulationResult) : Screen {
                 ) {
                     itemsIndexed(variableNames) { index, name ->
                         val colour = seriesColors[index % seriesColors.size]
+                        val unit = variableUnits[name]
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -148,7 +152,7 @@ class ChartScreen(private val result: SimulationResult) : Screen {
                                     .background(colour)
                             )
                             Text(
-                                text = name,
+                                text = "$name [$unit]",
                                 style = MaterialTheme.typography.bodySmall.copy(color = colour),
                             )
                         }

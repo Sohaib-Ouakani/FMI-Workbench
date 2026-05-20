@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 
 private const val MAX_SELECTED_VARIABLES = 10
 
-class SimulationScreen(private val variables: List<String>) : Screen {
+class SimulationScreen(private val variables: Map<String, String>) : Screen {
 
     @Composable
     override fun Content() {
@@ -52,7 +52,7 @@ class SimulationScreen(private val variables: List<String>) : Screen {
 
         val filteredVariables = remember(searchQuery, variables) {
             if (searchQuery.isBlank()) variables
-            else variables.filter { it.contains(searchQuery, ignoreCase = true) }
+            else variables.filter { it.key.contains(searchQuery, ignoreCase = true) }
         }
 
         // Derived validation
@@ -199,11 +199,13 @@ class SimulationScreen(private val variables: List<String>) : Screen {
                                     .background(BgElevated),
                                 verticalArrangement = Arrangement.spacedBy(1.dp),
                             ) {
-                                items(filteredVariables) { variable ->
+                                items(filteredVariables.keys.toList()) { variable ->
                                     val isSelected = variable in selectedVariables
                                     val canSelect = isSelected || selectedVariables.size < MAX_SELECTED_VARIABLES
+                                    val unitOfMesure = variables[variable].orEmpty()
                                     VariableRow(
                                         name = variable,
+                                        mesure = unitOfMesure,
                                         isSelected = isSelected,
                                         enabled = canSelect,
                                         onToggle = {
@@ -224,6 +226,7 @@ class SimulationScreen(private val variables: List<String>) : Screen {
                                 TextButton(
                                     onClick = {
                                         selectedVariables = filteredVariables
+                                            .keys
                                             .take(MAX_SELECTED_VARIABLES)
                                             .toSet()
                                     },
@@ -305,7 +308,7 @@ class SimulationScreen(private val variables: List<String>) : Screen {
                                         outputVariables = selectedVariables.toList(),
                                     )
                                     val result = runSimulation(config)
-                                    navigator.push(ChartScreen(result))
+                                    navigator.push(ChartScreen(result, variables))
                                 } catch (e: Exception) {
                                     errorMessage = "Simulation error: ${e.message}"
                                 } finally {
@@ -407,6 +410,7 @@ private fun SelectionBadge(selected: Int, max: Int) {
 @Composable
 private fun VariableRow(
     name: String,
+    mesure: String,
     isSelected: Boolean,
     enabled: Boolean,
     onToggle: () -> Unit,
@@ -437,7 +441,7 @@ private fun VariableRow(
             }
         }
         Text(
-            text = name,
+            text = "$name [${mesure.ifEmpty { "None" }}]",
             style = MaterialTheme.typography.bodySmall.copy(
                 color = if (enabled) TextPrimary else TextSecondary,
             ),

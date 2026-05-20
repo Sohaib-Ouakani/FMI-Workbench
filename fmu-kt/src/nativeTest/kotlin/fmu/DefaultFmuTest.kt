@@ -167,7 +167,7 @@ class DefaultFmuTest {
             val info = fmu.getInfo()
             // reload needed after getInfo teardown (simulate frees the instance)
             fmu.load(FmuPaths(BOUNCING_BALL_FMU, "$tmp2/extracted", "$tmp2/models"))
-            val targetVar = info.variables.first()
+            val targetVar = info.variables.keys.first()
             val result = fmu.simulate(SimulationConfig(
                 stopTime = 0.05,
                 outputVariables = listOf(targetVar)
