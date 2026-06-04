@@ -15,7 +15,9 @@ private fun Path.walkTopDown(): Sequence<Path> = SystemFileSystem.list(this).asS
     }
 }
 
-private val TEST_PATHS = Path("...").walkTopDown() + Path("src/nativeTest/resources/BouncingBall.fmu")
+private val TEST_PATHS by lazy {
+    Path("...").walkTopDown() + Path("src/nativeTest/resources/BouncingBall.fmu")
+}
 private const val BOUNCING_BALL_FMU = "src/nativeTest/resources/BouncingBall.fmu"
 
 private fun tempDir(name: String): String {
