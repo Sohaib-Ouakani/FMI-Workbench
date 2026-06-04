@@ -2,7 +2,9 @@ name: Build FMILibrary
 
 on:
   push:
-    branches: [ci-test, main]
+    branches-ignore:
+        - 'main'
+        - 'ci-test'
   workflow_dispatch:
 
 jobs:
@@ -26,7 +28,7 @@ jobs:
 
       - name: Build
         run: |
-          ./gradlew build
+          ./gradlew build --stacktrace
 
       - name: Test
         run: |
@@ -53,7 +55,7 @@ jobs:
 
       - name: Build and test
         run: |
-          ./gradlew build
+          ./gradlew build --stacktrace
           ./gradlew :fmu-kt:macosArm64Test
 
       - name: Upload install dir
@@ -77,7 +79,7 @@ jobs:
 
       - name: Build
         run: |
-          ./gradlew build
+          ./gradlew build --stacktrace
           
       - name: List fmilib windows outputs
         run: Get-ChildItem -Recurse "${{ github.workspace }}\fmilib\build\fmilib-install\windows-amd64"

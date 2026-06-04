@@ -21,18 +21,17 @@ dependencies {
     cLibrary(fmilib)
 }
 val platformDirName = mapOf(
-    "macosArm64"  to "mac-aarch64",
-    "linuxX64"    to "linux-amd64",
-    "mingwX64"    to "windows-amd64"
+    "macosArm64" to "mac-aarch64",
+    "linuxX64" to "linux-amd64",
+    "mingwX64" to "windows-amd64"
 )
 
 val fmilibInstallDir = project(":fmilib").layout.buildDirectory.dir("fmilib-install").get().asFile
 
 kotlin {
-    // TODO: reactivate the warning when cheking for style
-//    compilerOptions {
-//        allWarningsAsErrors = true
-//    }
+    compilerOptions {
+        allWarningsAsErrors = true
+    }
     val nativeSetup: KotlinNativeTarget.() -> Unit = {
         val platformDir = fmilibInstallDir
             .resolve(platformDirName[targetName] ?: error("Platform $targetName sconosciuta"))
@@ -88,15 +87,10 @@ kotlin {
 //        }
 //    }
 
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(libs.kotlinxSerializationJson)
-            }
-        }
-    }
-
     applyDefaultHierarchyTemplate()
+//    macosArm64(nativeSetup)
+//    linuxX64(nativeSetup)
+//    mingwX64(nativeSetup)
 
     val os = OperatingSystem.current()
     when {
@@ -106,6 +100,22 @@ kotlin {
         else -> error("Unsupported OS: $os")
     }
 
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(libs.kotlinxSerializationJson)
+
+                implementation(libs.ksoup.core)
+                implementation(libs.ksoup.kotlinxIo)
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+    }
+
     targets.configureEach {
         compilations.configureEach {
             compileTaskProvider.configure {
@@ -113,6 +123,12 @@ kotlin {
                     freeCompilerArgs.add("-Xexpect-actual-classes")
                 }
             }
+        }
+    }
+
+    tasks.withType<KotlinNativeTest>().configureEach {
+        testLogging {
+            showStandardStreams = true
         }
     }
 }

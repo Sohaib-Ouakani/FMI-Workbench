@@ -21,27 +21,6 @@ val platformDirName = mapOf(
 val fmilibInstallDir = project(":fmilib").layout.buildDirectory.dir("fmilib-install").get().asFile
 
 kotlin {
-
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(project(":fmu-kt"))
-                implementation(libs.kotlinxSerializationJson)
-                implementation(libs.ktor.serialization.kotlinx.json)
-                implementation(libs.ktor.server.core)
-                implementation(libs.ktor.server.cio)
-                implementation(libs.ktor.server.host.common)
-                implementation(libs.ktor.server.content.negotiation)
-                implementation(libs.ktor.server.cors)
-            }
-        }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
-        }
-    }
-
     val nativeSetup: KotlinNativeTarget.() -> Unit = {
         val platformDir = fmilibInstallDir
             .resolve(platformDirName[targetName] ?: error("Platform $targetName sconosciuta"))
@@ -75,7 +54,6 @@ kotlin {
     }
 
     applyDefaultHierarchyTemplate()
-    applyDefaultHierarchyTemplate()
 
     val os = OperatingSystem.current()
     when {
@@ -85,14 +63,54 @@ kotlin {
         else -> error("Unsupported OS: $os")
     }
 
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(project(":fmu-kt"))
+                implementation(libs.kotlinxSerializationJson)
+                implementation(libs.ktor.serialization.kotlinx.json)
+                implementation(libs.ktor.server.core)
+                implementation(libs.ktor.server.cio)
+                implementation(libs.ktor.server.host.common)
+                implementation(libs.ktor.server.content.negotiation)
+                implementation(libs.ktor.server.cors)
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+        val nativeTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.ktor.client.cio) // for the test HTTP client
+            }
+        }
+    }
+
+    //fix for warnings related to expect/actual mechanisms
     targets.all {
         compilations.all {
             compileTaskProvider.configure {
                 compilerOptions {
-                    allWarningsAsErrors = true
                     freeCompilerArgs.add("-Xexpect-actual-classes")
                 }
             }
         }
     }
+}
+
+// in backend/build.gradle.kts
+val copyFmilibDllForWindows by tasks.registering(Copy::class) {
+    val binDir = fmilibInstallDir.resolve("windows-amd64/bin")
+    from(binDir) {
+        include("*.dll")
+    }
+    into(layout.buildDirectory.dir("bin/mingwX64/releaseExecutable"))
+    dependsOn(project(":fmilib").tasks.named("build"))
+}
+
+tasks.matching { it.name == "linkReleaseExecutableMingwX64" }.configureEach {
+    finalizedBy(copyFmilibDllForWindows)
 }

@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [ci-test]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build & Test - ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linuxX64
+            name: Linux X64
+            binary: backend/build/bin/linuxX64/releaseExecutable/backend.kexe
+            run_binary: ./backend/build/bin/linuxX64/releaseExecutable/backend.kexe
+            health_check: |
+              sleep 10
+              curl --fail http://localhost:8080/health
+
+          - os: macos-latest
+            target: macosArm64
+            name: macOS ARM64
+            binary: backend/build/bin/macosArm64/releaseExecutable/backend.kexe
+            run_binary: ./backend/build/bin/macosArm64/releaseExecutable/backend.kexe
+            health_check: |
+              sleep 10
+              curl --fail http://localhost:8080/health
+
+          - os: windows-latest
+            target: mingwX64
+            name: Windows X64
+            binary: backend/build/bin/mingwX64/releaseExecutable/backend.exe
+            run_binary: ""   # handled separately in pwsh step below
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install Linux dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update && sudo apt-get install -y cmake build-essential curl unzip
+
+      - name: Build (includes all tests)
+        run: ./gradlew build --info --stacktrace
+
+      - name: Upload test reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-${{ matrix.target }}
+          path: fmu-kt/build/reports/tests/
+
+      - name: Upload fmilib artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fmilib-${{ matrix.target }}
+          path: fmilib/build/fmilib-install/
+
+      - name: Health check (Linux / macOS)
+        if: matrix.os != 'windows-latest'
+        run: |
+          ${{ matrix.run_binary }} &
+          ${{ matrix.health_check }}
+
+      - name: Health check (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $proc = Start-Process -FilePath "./backend/build/bin/mingwX64/releaseExecutable/backend.exe" `
+            -PassThru
+          Start-Sleep -Seconds 15
+          try {
+            curl.exe --fail http://localhost:8080/health
+          } finally {
+            $proc | Stop-Process
+          }
