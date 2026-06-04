@@ -7,6 +7,15 @@ import wrapper.simulation.config.SimulationConfig
 import kotlin.test.*
 import preprocessor.factory.createPreprocessor
 
+private fun Path.walkTopDown(): Sequence<Path> = SystemFileSystem.list(this).asSequence().flatMap { p ->
+    when {
+        SystemFileSystem.metadataOrNull(p)?.isDirectory == true -> sequenceOf(p) + p.walkTopDown()
+        SystemFileSystem.metadataOrNull(p)?.isRegularFile == true && p.name.endsWith("fmu") -> sequenceOf(p)
+        else -> emptySequence()
+    }
+}
+
+private val TEST_PATHS = Path("...").walkTopDown() + Path("src/nativeTest/resources/BouncingBall.fmu")
 private const val BOUNCING_BALL_FMU = "src/nativeTest/resources/BouncingBall.fmu"
 
 private fun tempDir(name: String): String {

@@ -13,3 +13,4 @@ backend/resources/extracted/*
 backend/resources/models/*
 !backend/resources/extracted/.gitkeep
 !backend/resources/models/.gitkeep
+digest.txt
