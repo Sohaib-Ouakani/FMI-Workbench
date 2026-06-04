@@ -47,12 +47,6 @@ kotlin {
         binaries {
             all {
                 if (targetName == "linuxX64") {
-//                    linkerOpts(
-//                        "-L${libDir}",
-//                        "-lfmilib_shared",
-//                        "-Wl,-rpath,${libDir}",
-//                        "-L/usr/lib/x86_64-linux-gnu"        // libdl, libm, libc, ecc.
-//                    )
                     linkerOpts(
                         "-L${libDir}",
                         "-lfmilib_shared",
@@ -74,23 +68,7 @@ kotlin {
         }
     }
 
-    // Override linker per Linux — separato da nativeSetup
-//    linuxX64 {
-//        compilations.all {
-//            compileTaskProvider.configure {
-//                compilerOptions {
-//                    freeCompilerArgs.add(
-//                        "-Xoverride-konan-properties=linker.linux_x64=/usr/bin/ld"
-//                    )
-//                }
-//            }
-//        }
-//    }
-
     applyDefaultHierarchyTemplate()
-//    macosArm64(nativeSetup)
-//    linuxX64(nativeSetup)
-//    mingwX64(nativeSetup)
 
     val os = OperatingSystem.current()
     when {
@@ -112,6 +90,7 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation(libs.kotest.framework.engine)
             }
         }
     }

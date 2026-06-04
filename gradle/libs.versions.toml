@@ -7,6 +7,7 @@ kotlinx-coroutines = "1.10.2"
 voyager = "1.1.0-beta03"
 ksoup = "0.2.6"
 koalaplot = "0.11.0"
+kotest = "6.1.11"
 
 [libraries]
 kotlinxSerializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
@@ -23,6 +24,7 @@ ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
 ksoup-core = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
 ksoup-kotlinxIo = { module = "com.fleeksoft.ksoup:ksoup-kotlinx", version.ref = "ksoup" }
 koalaplot-core = { module = "io.github.koalaplot:koalaplot-core", version.ref = "koalaplot" }
+kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
 
 [bundles]
 
