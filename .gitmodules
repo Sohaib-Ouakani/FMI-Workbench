@@ -1,3 +1,6 @@
 [submodule "fmilib/lib"]
 	path = fmilib/lib
 	url = https://github.com/modelon-community/fmi-library.git
+[submodule "fmu-kt/src/nativeTest/resources/external"]
+	path = fmu-kt/src/nativeTest/resources/external
+	url = https://github.com/CATIA-Systems/dymola-fmi-compatibility.git
