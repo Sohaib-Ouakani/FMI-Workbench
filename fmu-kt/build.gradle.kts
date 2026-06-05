@@ -5,6 +5,8 @@ import org.gradle.internal.os.OperatingSystem
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlinxSerialization)
+    id("io.kotest").version("6.1.11")
+    id("com.google.devtools.ksp") version "2.3.9"
 }
 
 group = "org.findaname"

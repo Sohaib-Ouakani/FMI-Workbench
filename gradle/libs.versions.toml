@@ -25,6 +25,7 @@ ksoup-core = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
 ksoup-kotlinxIo = { module = "com.fleeksoft.ksoup:ksoup-kotlinx", version.ref = "ksoup" }
 koalaplot-core = { module = "io.github.koalaplot:koalaplot-core", version.ref = "koalaplot" }
 kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
+kotest-framework-api = { module = "io.kotest:kotest-framework-api", version.ref = "kotest" }
 
 [bundles]
 
