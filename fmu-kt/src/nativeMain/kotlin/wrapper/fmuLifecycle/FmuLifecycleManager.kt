@@ -2,7 +2,9 @@ package wrapper.fmuLifecycle
 
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.ExperimentalForeignApi
+import libfmi.fmi2_fmu_kind_cs
 import libfmi.fmi2_fmu_kind_me
+import libfmi.fmi2_fmu_kind_me_and_cs
 import libfmi.fmi2_import_create_dllfmu
 import libfmi.fmi2_import_destroy_dllfmu
 import libfmi.fmi2_import_free
@@ -68,7 +70,7 @@ class FmuLifecycleManager(val fmuFile: String, val unpackDir: String) {
 
         val fmuKind = fmi2_import_get_fmu_kind(fmiStruct)
 
-        if (fmuKind == fmi2_fmu_kind_me) {
+        if (fmuKind != fmi2_fmu_kind_cs && fmuKind != fmi2_fmu_kind_me_and_cs) {
             FmuKtLogger.i("FMU is of type Model Exchange. Simulation not supported.")
         } else {
             canSimulate = true
