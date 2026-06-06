@@ -26,7 +26,7 @@ class ProcessExecution {
      */
     fun run (vararg args: String): Int {
         val cmd = args.joinToString(" ") { if (it.contains(" ")) "\"$it\"" else it }
-        println(cmd)
+        //println(cmd)
         return system(cmd)
     }
 
