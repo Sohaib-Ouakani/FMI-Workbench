@@ -33,8 +33,17 @@ class ClangComplier(
                 exec.run(
                     "clang",
                     "--target=$target",
+                    "-D_DARWIN_C_SOURCE",
+                    "-include", "stdlib.h",
+                    "-include", "unistd.h",
                     "-c", "-fPIC", "-O2",
                     "-I$includeDir",
+//                    "-Wno-implicit-function-declaration",
+//                    "-Wno-deprecated-non-prototype",
+//                    "-Wno-shift-op-parentheses",
+//                    "-Wno-absolute-value",
+//                    "-Wno-parentheses",
+//                    "-Wno-switch",
                     src, "-o", obj
                 ) == 0
             ) { "Compilation failed: $src [${target.substringBefore("-")}]" }
