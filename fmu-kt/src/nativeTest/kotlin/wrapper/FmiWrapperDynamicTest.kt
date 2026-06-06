@@ -18,8 +18,6 @@ import libfmi.fmi_import_free_context
 import libfmi.fmi_import_get_fmi_version
 import libfmi.fmi_version_2_0_enu
 
-// ── FMU discovery ─────────────────────────────────────────────────────────────
-
 private fun Path.walkFmus(): Sequence<Path> =
     SystemFileSystem.list(this).asSequence().flatMap { p ->
         when {
@@ -34,12 +32,10 @@ private fun Path.walkFmus(): Sequence<Path> =
     }
 
 private val ALL_FMUS: List<Path> by lazy {
-    val submoduleFmus = Path("src/nativeTest/resources/external/").walkFmus().toList() // TODO: set your submodule root
+    val submoduleFmus = Path("src/nativeTest/resources/external/").walkFmus().toList()
     val resourceFmus = listOf(Path("src/nativeTest/resources/BouncingBall.fmu"))
     (submoduleFmus + resourceFmus).distinct()
 }
-
-// ── FMI version guard ─────────────────────────────────────────────────────────
 
 private fun fmuId(fmuPath: String): String =
     fmuPath.hashCode().toUInt().toString(16)
@@ -66,47 +62,9 @@ private fun fmiVersionGuard(fmuPath: String): Enabled {
             throw TestAbortedException("FMU has no source code — cannot recompile on this platform")
         Enabled.enabled
     } finally {
-        // if the library provides a free function, call it here
         fmi_import_free_context(context)
     }
-
-    // TODO: replace with your real library call, e.g.:
-    //   val version = getFmiVersion(fmuPath)
-    //   return if (version == 2) Enabled.enabled
-    //          else Enabled.disabled("FMI version $version not supported yet (only v2)")
 }
-
-//@OptIn(ExperimentalForeignApi::class)
-//private fun sourceCodeGuard(fmuPath: String): Enabled {
-//    val tmp = tempDir("sourcecheck_${fmuId(fmuPath)}")
-//    try {
-//        NativeFmiWrapper(fmuPath, "$tmp/extracted", "$tmp/models", createPreprocessor())
-//    } catch (e: IllegalStateException) {
-//        return if (e.message?.contains("No source folder, precompiled FMU") == true)
-//            Enabled.disabled("No source code in FMU")
-//        else {
-//            Enabled.enabled
-//        }
-//    }
-//    return Enabled.enabled
-////    // peek inside the zip without extracting
-////    val hasSource = try {
-////        platform.posix.popen("unzip -l '$fmuPath' | grep -q 'sources/'", "r")
-////            ?.let { pipe ->
-////                val exit = platform.posix.pclose(pipe)
-////                exit == 0
-////            } ?: false
-////    } catch (e: Exception) { false }
-////
-////    return if (hasSource) Enabled.enabled
-////    else Enabled.disabled("No source code in FMU — recompilation required on macOS")
-//}
-
-//private fun fmuGuard(fmuPath: String): Enabled {
-//    val versionCheck = fmiVersionGuard(fmuPath)
-//    if (!versionCheck.isEnabled) return versionCheck
-//    return sourceCodeGuard(fmuPath)
-//}
 
 @OptIn(ExperimentalNativeApi::class)
 private fun isMacOs(): Boolean =
@@ -118,8 +76,6 @@ private fun fmuGuard(fmuPath: String): Enabled {
     if (isMacOs()) return Enabled.disabled("macOS: covered by macosArm64Test spec")
     return Enabled.enabled
 }
-
-// ── Temp directory helpers (unchanged from original) ──────────────────────────
 
 private fun tempDir(name: String): String {
     val path = "/tmp/wrapper_test_$name"
@@ -140,16 +96,7 @@ private fun deleteDir(path: String) {
 
 private fun openWrapper(fmuPath: String, tmp: String): NativeFmiWrapper {
     return NativeFmiWrapper(fmuPath, "$tmp/extracted", "$tmp/models", createPreprocessor())
-//    return try {
-//        NativeFmiWrapper(fmuPath, "$tmp/extracted", "$tmp/models", createPreprocessor())
-//    } catch (e: IllegalStateException) {
-//        if (e.message?.contains("No source folder, precompiled FMU") == true)
-//            throw TestAbortedException("FMU has no source code — cannot recompile on this platform")
-//        else throw e
-//    }
 }
-
-// ── Shared test logic (plain functions, reused across all FMUs) ───────────────
 
 @OptIn(ExperimentalForeignApi::class)
 private fun checkCinteropBinding() {
@@ -251,8 +198,6 @@ private fun checkExecuteThrowsWithoutSetup(fmuPath: String, tmp: String) {
     w.close()
 }
 
-// ── Spec ──────────────────────────────────────────────────────────────────────
-
 @OptIn(ExperimentalForeignApi::class)
 class FmiWrapperDynamicTest : FunSpec({
 
@@ -274,76 +219,74 @@ class FmiWrapperDynamicTest : FunSpec({
         val label = fmu.name.removeSuffix(".fmu")
         val uid = fmuId(fmuPath)
 
-        // Capture into locals that are unambiguously per-iteration
-        val capturedPath = fmuPath
-        val guard = fmuGuard(capturedPath)
+        val guard = fmuGuard(fmuPath)
 
         test("[$label-$uid] lifecycle: initialises without throwing")
             .config(enabledOrReasonIf = { guard }) {
                 val tmp = tempDir("${label}_${uid}_init")
-                try { checkInitialises(capturedPath, tmp) } finally { deleteDir(tmp) }
+                try { checkInitialises(fmuPath, tmp) } finally { deleteDir(tmp) }
             }
 
         test("[$label-$uid] lifecycle: close does not throw")
             .config(enabledOrReasonIf = { guard }) {
                 val tmp = tempDir("${label}_${uid}_close")
-                try { checkClose(capturedPath, tmp) } finally { deleteDir(tmp) }
+                try { checkClose(fmuPath, tmp) } finally { deleteDir(tmp) }
             }
 
         test("[$label-$uid] getInfo: model name is non-blank")
             .config(enabledOrReasonIf = { guard }) {
                 val tmp = tempDir("${label}_${uid}_modelname")
-                try { checkModelName(capturedPath, tmp) } finally { deleteDir(tmp) }
+                try { checkModelName(fmuPath, tmp) } finally { deleteDir(tmp) }
             }
 
         test("[$label-$uid] getInfo: variables list is not empty")
             .config(enabledOrReasonIf = { guard }) {
                 val tmp = tempDir("${label}_${uid}_vars")
-                try { checkVariablesNotEmpty(capturedPath, tmp) } finally { deleteDir(tmp) }
+                try { checkVariablesNotEmpty(fmuPath, tmp) } finally { deleteDir(tmp) }
             }
 
         test("[$label-$uid] getInfo: default experiment stop is positive")
             .config(enabledOrReasonIf = { guard }) {
                 val tmp = tempDir("${label}_${uid}_expstop")
-                try { checkDefaultExperimentStop(capturedPath, tmp) } finally { deleteDir(tmp) }
+                try { checkDefaultExperimentStop(fmuPath, tmp) } finally { deleteDir(tmp) }
             }
 
         test("[$label-$uid] getInfo: fmuKind is not blank")
             .config(enabledOrReasonIf = { guard }) {
                 val tmp = tempDir("${label}_${uid}_kind")
-                try { checkFmuKind(capturedPath, tmp) } finally { deleteDir(tmp) }
+                try { checkFmuKind(fmuPath, tmp) } finally { deleteDir(tmp) }
             }
 
         test("[$label] simulation: correct number of timestamps")
             .config(enabledOrReasonIf = { guard }) {
                 val tmp = tempDir("${label}_${uid}_timestamps")
-                try { checkTimestampCount(capturedPath, tmp) } finally { deleteDir(tmp) }
+                try { checkTimestampCount(fmuPath, tmp) } finally { deleteDir(tmp) }
             }
 
         test("[$label-$uid] simulation: result contains all fmu variables")
             .config(enabledOrReasonIf = { guard }) {
                 val tmp1 = tempDir("${label}_${uid}_allvars1")
                 val tmp2 = tempDir("${label}_${uid}_allvars2")
-                try { checkAllVariablesPresent(capturedPath, tmp1, tmp2) }
+                try { checkAllVariablesPresent(fmuPath, tmp1, tmp2) }
                 finally { deleteDir(tmp1); deleteDir(tmp2) }
             }
 
         test("[$label-$uid] simulation: variable lists match timestamp count")
             .config(enabledOrReasonIf = { guard }) {
                 val tmp = tempDir("${label}_${uid}_varlen")
-                try { checkVariableLengthsMatchTimestamps(capturedPath, tmp) } finally { deleteDir(tmp) }
+                try { checkVariableLengthsMatchTimestamps(fmuPath, tmp) } finally { deleteDir(tmp) }
             }
 
         test("[$label-$uid] simulation: config is preserved in result")
             .config(enabledOrReasonIf = { guard }) {
                 val tmp = tempDir("${label}_${uid}_config")
-                try { checkConfigPreserved(capturedPath, tmp) } finally { deleteDir(tmp) }
+                try { checkConfigPreserved(fmuPath, tmp) } finally { deleteDir(tmp) }
             }
 
         test("[$label-$uid] simulation: executeExperiment throws when setup not called")
             .config(enabledOrReasonIf = { guard }) {
                 val tmp = tempDir("${label}_${uid}_nosetup")
-                try { checkExecuteThrowsWithoutSetup(capturedPath, tmp) } finally { deleteDir(tmp) }
+                try { checkExecuteThrowsWithoutSetup(fmuPath, tmp) } finally { deleteDir(tmp) }
             }
     }
 })
