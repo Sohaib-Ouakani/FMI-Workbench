@@ -5,6 +5,7 @@ on:
     branches:
       - 'ci-test'
       - 'main'
+      - 'tests'
   workflow_dispatch:
 
 jobs:
