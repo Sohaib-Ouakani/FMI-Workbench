@@ -1,8 +1,7 @@
 package fmu
 
 import preprocessor.FmuPreprocessor
-import preprocessor.factory.createPreprocessor
-import wrapper.NativeFmiWrapper
+import wrapper.FmuManager
 import wrapper.fmuData.info.FmuInfo
 import wrapper.simulation.config.SimulationConfig
 import wrapper.simulation.results.SimulationResult
@@ -13,7 +12,7 @@ import wrapper.simulation.results.SimulationResult
  * Implements [AutoCloseable] to ensure proper resource cleanup.
  *
  * This class acts as the main entry point for FMU interactions, hiding complexity of the low-level
- * [NativeFmiWrapper] and providing a clean API for users.
+ * [FmuManager] and providing a clean API for users.
  *
  * @property fmuPath Path to the FMU file to be loaded.
  * @property resourcesPath Path to the resources directory containing extracted FMU contents.
@@ -24,7 +23,7 @@ import wrapper.simulation.results.SimulationResult
 class DefaultFmu(
     private val preprocessor: FmuPreprocessor
 ) : FmuService {
-    private var wrapper: NativeFmiWrapper? = null
+    private var wrapper: FmuManager? = null
     private var loadedFmuPath: String? = null
 
     /**
@@ -42,7 +41,7 @@ class DefaultFmu(
         if (paths.fmuPath == loadedFmuPath && wrapper != null) return
         close()
         loadedFmuPath = paths.fmuPath
-        wrapper = NativeFmiWrapper(
+        wrapper = FmuManager(
             paths.fmuPath,
             paths.extractedDir,
             paths.modelsDir,

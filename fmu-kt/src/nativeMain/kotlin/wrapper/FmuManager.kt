@@ -29,7 +29,7 @@ import wrapper.simulation.results.SimulationResult
  * @throws IllegalStateException if FMU binary loading fails or XML parsing is unsuccessful.
  */
 @OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class)
-class NativeFmiWrapper(
+class FmuManager(
     val path: String,
     val extractedDir: String,
     val modelsDir: String,

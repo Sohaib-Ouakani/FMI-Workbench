@@ -6,7 +6,7 @@ import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 
 
-class DefaultResourceManager(arg: String?): ResourceManagerService {
+class   DefaultResourceManager(arg: String?): ResourceManagerService {
     private val baseDir: Path = arg
         ?.let { Path(it).parent }          // executable path → its parent dir
         ?: SystemFileSystem.resolve(Path("."))  // fallback to CWD

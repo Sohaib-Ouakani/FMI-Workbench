@@ -104,9 +104,9 @@ private fun deleteDir(path: String) {
     rec(Path(path))
 }
 
-private fun openWrapper(fmuPath: String, tmp: String): NativeFmiWrapper {
+private fun openWrapper(fmuPath: String, tmp: String): FmuManager {
     return try {
-        NativeFmiWrapper(fmuPath, "$tmp/extracted", "$tmp/models", createPreprocessor())
+        FmuManager(fmuPath, "$tmp/extracted", "$tmp/models", createPreprocessor())
     } catch (e: IllegalStateException) {
         if (e.message?.contains("No source folder, precompiled FMU") == true)
             throw TestAbortedException("FMU has no source code — cannot recompile on this platform")
@@ -123,7 +123,7 @@ private fun checkCinteropBinding() {
 @OptIn(ExperimentalForeignApi::class)
 private fun checkBadPath(tmp: String) {
     assertFailsWith<IllegalArgumentException> {
-        NativeFmiWrapper("/does/not/exist.fmu", "$tmp/extracted", "$tmp/models", createPreprocessor())
+        FmuManager("/does/not/exist.fmu", "$tmp/extracted", "$tmp/models", createPreprocessor())
     }
 }
 

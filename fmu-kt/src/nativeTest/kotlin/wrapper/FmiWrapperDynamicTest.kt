@@ -94,8 +94,8 @@ private fun deleteDir(path: String) {
     rec(Path(path))
 }
 
-private fun openWrapper(fmuPath: String, tmp: String): NativeFmiWrapper {
-    return NativeFmiWrapper(fmuPath, "$tmp/extracted", "$tmp/models", createPreprocessor())
+private fun openWrapper(fmuPath: String, tmp: String): FmuManager {
+    return FmuManager(fmuPath, "$tmp/extracted", "$tmp/models", createPreprocessor())
 }
 
 @OptIn(ExperimentalForeignApi::class)
@@ -106,7 +106,7 @@ private fun checkCinteropBinding() {
 @OptIn(ExperimentalForeignApi::class)
 private fun checkBadPath(tmp: String) {
     assertFailsWith<IllegalArgumentException> {
-        NativeFmiWrapper("/does/not/exist.fmu", "$tmp/extracted", "$tmp/models", createPreprocessor())
+        FmuManager("/does/not/exist.fmu", "$tmp/extracted", "$tmp/models", createPreprocessor())
     }
 }
 
