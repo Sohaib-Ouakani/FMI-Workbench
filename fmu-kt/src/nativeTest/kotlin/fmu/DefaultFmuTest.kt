@@ -33,7 +33,7 @@ class DefaultFmuTest {
 
     @Test
     fun `getInfo throws when fmu not loaded`() {
-        val fmu = DefaultFmu()
+        val fmu = DefaultFmuService()
         assertFailsWith<IllegalStateException> {
             fmu.getInfo()
         }
@@ -41,7 +41,7 @@ class DefaultFmuTest {
 
     @Test
     fun `simulate throws when fmu not loaded`() {
-        val fmu = DefaultFmu()
+        val fmu = DefaultFmuService()
         assertFailsWith<IllegalStateException> {
             fmu.simulate(SimulationConfig())
         }
@@ -49,13 +49,13 @@ class DefaultFmuTest {
 
     @Test
     fun `close on unloaded fmu does not throw`() {
-        val fmu = DefaultFmu()
+        val fmu = DefaultFmuService()
         fmu.close() // must be safe to call even before load
     }
 
     @Test
     fun `close can be called multiple times safely`() {
-        val fmu = DefaultFmu()
+        val fmu = DefaultFmuService()
         fmu.close()
         fmu.close()
     }
@@ -66,7 +66,7 @@ class DefaultFmuTest {
     fun `load succeeds with valid fmu`() {
         val tmp = tempDir("load")
         try {
-            val fmu = DefaultFmu()
+            val fmu = DefaultFmuService()
             fmu.load(FmuPaths(
                 fmuPath = BOUNCING_BALL_FMU,
                 extractedDir = "$tmp/extracted",
@@ -80,7 +80,7 @@ class DefaultFmuTest {
     fun `getInfo returns non-null model name after load`() {
         val tmp = tempDir("getinfo")
         try {
-            val fmu = DefaultFmu()
+            val fmu = DefaultFmuService()
             fmu.load(FmuPaths(BOUNCING_BALL_FMU, "$tmp/extracted", "$tmp/models"))
             val info = fmu.getInfo()
             assertNotNull(info.modelName)
@@ -93,7 +93,7 @@ class DefaultFmuTest {
     fun `getInfo returns variables list`() {
         val tmp = tempDir("variables")
         try {
-            val fmu = DefaultFmu()
+            val fmu = DefaultFmuService()
             fmu.load(FmuPaths(BOUNCING_BALL_FMU, "$tmp/extracted", "$tmp/models"))
             val info = fmu.getInfo()
             assertTrue(info.variables.isNotEmpty())
@@ -105,7 +105,7 @@ class DefaultFmuTest {
     fun `getInfo returns co-simulation fmu kind`() {
         val tmp = tempDir("kind")
         try {
-            val fmu = DefaultFmu()
+            val fmu = DefaultFmuService()
             fmu.load(FmuPaths(BOUNCING_BALL_FMU, "$tmp/extracted", "$tmp/models"))
             val info = fmu.getInfo()
             assertNotNull(info.fmuKind)
@@ -118,7 +118,7 @@ class DefaultFmuTest {
     fun `load twice closes previous wrapper cleanly`() {
         val tmp = tempDir("reload")
         try {
-            val fmu = DefaultFmu()
+            val fmu = DefaultFmuService()
             val paths = FmuPaths(BOUNCING_BALL_FMU, "$tmp/extracted", "$tmp/models")
             fmu.load(paths)
             fmu.load(paths) // second load must not throw
@@ -130,7 +130,7 @@ class DefaultFmuTest {
     fun `simulate returns timestamps matching step count`() {
         val tmp = tempDir("simulate")
         try {
-            val fmu = DefaultFmu()
+            val fmu = DefaultFmuService()
             fmu.load(FmuPaths(BOUNCING_BALL_FMU, "$tmp/extracted", "$tmp/models"))
             val config = SimulationConfig(
                 startTime = 0.0,
@@ -148,7 +148,7 @@ class DefaultFmuTest {
     fun `simulate timestamps start at configured start time`() {
         val tmp = tempDir("timestamps")
         try {
-            val fmu = DefaultFmu()
+            val fmu = DefaultFmuService()
             fmu.load(FmuPaths(BOUNCING_BALL_FMU, "$tmp/extracted", "$tmp/models"))
             val result = fmu.simulate(SimulationConfig(startTime = 0.0, stopTime = 0.05, stepSize = 0.01))
             assertEquals(0.0, result.timestamps.first(), 1e-9)
@@ -161,7 +161,7 @@ class DefaultFmuTest {
         val tmp1 = tempDir("outvars1")
         val tmp2 = tempDir("outvars2")
         try {
-            val fmu = DefaultFmu()
+            val fmu = DefaultFmuService()
             fmu.load(FmuPaths(BOUNCING_BALL_FMU, "$tmp1/extracted", "$tmp1/models"))
             val info = fmu.getInfo()
             // reload needed after getInfo teardown (simulate frees the instance)
@@ -185,7 +185,7 @@ class DefaultFmuTest {
         val tmp1 = tempDir("allvars")
         val tmp2 = tempDir("allvars2")
         try {
-            val fmu = DefaultFmu()
+            val fmu = DefaultFmuService()
             fmu.load(FmuPaths(BOUNCING_BALL_FMU, "$tmp1/extracted", "$tmp1/models"))
             val info = fmu.getInfo()
             fmu.load(FmuPaths(BOUNCING_BALL_FMU, "$tmp2/extracted", "$tmp2/models"))
