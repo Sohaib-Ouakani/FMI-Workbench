@@ -1,6 +1,6 @@
 package fmu
 
-import preprocessor.FmuPreprocessor
+import preprocessor.factory.createPreprocessor
 import wrapper.FmuManager
 import wrapper.fmuData.info.FmuInfo
 import wrapper.simulation.config.SimulationConfig
@@ -21,7 +21,6 @@ import wrapper.simulation.results.SimulationResult
  * @throws IllegalArgumentException if the FMU cannot be loaded or is corrupted.
  */
 class DefaultFmu(
-    private val preprocessor: FmuPreprocessor
 ) : FmuService {
     private var wrapper: FmuManager? = null
     private var loadedFmuPath: String? = null
@@ -45,7 +44,7 @@ class DefaultFmu(
             paths.fmuPath,
             paths.extractedDir,
             paths.modelsDir,
-            preprocessor
+            createPreprocessor()
         )
     }
 
