@@ -1,0 +1,3 @@
+headers = fmilib.h
+
+headerFilter = FMI/* FMI1/* FMI2/* FMI3/*
