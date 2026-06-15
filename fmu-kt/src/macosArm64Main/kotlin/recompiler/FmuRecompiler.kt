@@ -8,7 +8,7 @@ import utility.DescriptionParser
 import utility.FilesystemManager
 import utility.FmiHeaderSynthesiser
 import utility.FmuPackager
-import utility.ProcessExecution
+import utility.ProcessExecutor
 
 /**
  * Recompiles FMU (Functional Mock-up Unit) files for the macOS ARM64 platform.
@@ -16,7 +16,7 @@ import utility.ProcessExecution
  * linking into universal binaries supporting multiple architectures, and repackaging.
  */
 class FmuRecompiler {
-    private val exec = ProcessExecution()
+    private val exec = ProcessExecutor()
     private val fs = FilesystemManager()
     private val packager = FmuPackager(exec)
     private val complier = ClangComplier(exec)

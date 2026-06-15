@@ -16,7 +16,7 @@ const val BUFFER_SIZE = 4096
  * Executes system processes and commands.
  * Provides methods to run commands with and without capturing output.
  */
-class ProcessExecution {
+class ProcessExecutor {
     /**
      * Executes a system command with the given arguments.
      *

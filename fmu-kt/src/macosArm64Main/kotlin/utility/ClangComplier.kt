@@ -5,10 +5,10 @@ package utility
  * Handles compilation to object files, linking into dynamic libraries,
  * and creation of universal binaries for multiple architectures.
  *
- * @param exec The [ProcessExecution] instance used to run Clang commands.
+ * @param exec The [ProcessExecutor] instance used to run Clang commands.
  */
 class ClangComplier(
-    private val exec: ProcessExecution
+    private val exec: ProcessExecutor
 ) {
     /**
      * Compiles C source files to object files for a specific target architecture.

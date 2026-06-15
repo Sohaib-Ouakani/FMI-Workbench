@@ -4,10 +4,10 @@ package utility
  * Manages FMU (Functional Mock-up Unit) file packaging operations.
  * Handles extraction of FMU contents, creation of temporary directories, and repackaging.
  *
- * @param exec The [ProcessExecution] instance used to run system commands like unzip and zip.
+ * @param exec The [ProcessExecutor] instance used to run system commands like unzip and zip.
  */
 class FmuPackager(
-    private val exec: ProcessExecution
+    private val exec: ProcessExecutor
 ) {
     /**
      * Extracts the contents of an FMU file to a specified destination directory.
