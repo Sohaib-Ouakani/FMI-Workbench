@@ -1,9 +1,9 @@
 package fmu
 
+import kotlin.test.*
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 import wrapper.simulation.config.SimulationConfig
-import kotlin.test.*
 
 // Helper: resolve path to the BouncingBall.fmu bundled in test resources.
 // The test binary working directory is the module root when run via Gradle.
@@ -20,8 +20,9 @@ private fun tempDir(name: String): String {
 private fun deleteDir(path: String) {
     val p = Path(path)
     fun rec(p: Path) {
-        if (SystemFileSystem.metadataOrNull(p)?.isDirectory == true)
+        if (SystemFileSystem.metadataOrNull(p)?.isDirectory == true) {
             SystemFileSystem.list(p).forEach { rec(it) }
+        }
         SystemFileSystem.delete(p)
     }
     rec(p)
@@ -67,13 +68,17 @@ class DefaultFmuTest {
         val tmp = tempDir("load")
         try {
             val fmu = DefaultFmuService()
-            fmu.load(FmuPaths(
-                fmuPath = BOUNCING_BALL_FMU,
-                extractedDir = "$tmp/extracted",
-                modelsDir = "$tmp/models"
-            ))
+            fmu.load(
+                FmuPaths(
+                    fmuPath = BOUNCING_BALL_FMU,
+                    extractedDir = "$tmp/extracted",
+                    modelsDir = "$tmp/models",
+                ),
+            )
             fmu.close()
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -86,7 +91,9 @@ class DefaultFmuTest {
             assertNotNull(info.modelName)
             assertTrue(info.modelName.isNotBlank())
             fmu.close()
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -98,7 +105,9 @@ class DefaultFmuTest {
             val info = fmu.getInfo()
             assertTrue(info.variables.isNotEmpty())
             fmu.close()
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -111,7 +120,9 @@ class DefaultFmuTest {
             assertNotNull(info.fmuKind)
             assertTrue(info.fmuKind.isNotBlank())
             fmu.close()
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -123,7 +134,9 @@ class DefaultFmuTest {
             fmu.load(paths)
             fmu.load(paths) // second load must not throw
             fmu.close()
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -135,13 +148,15 @@ class DefaultFmuTest {
             val config = SimulationConfig(
                 startTime = 0.0,
                 stopTime = 0.1,
-                stepSize = 0.01
+                stepSize = 0.01,
             )
             val result = fmu.simulate(config)
             // 0.0, 0.01, 0.02 … 0.10 → 11 steps
             assertEquals(11, result.timestamps.size)
             fmu.close()
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -153,7 +168,9 @@ class DefaultFmuTest {
             val result = fmu.simulate(SimulationConfig(startTime = 0.0, stopTime = 0.05, stepSize = 0.01))
             assertEquals(0.0, result.timestamps.first(), 1e-9)
             fmu.close()
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -167,10 +184,12 @@ class DefaultFmuTest {
             // reload needed after getInfo teardown (simulate frees the instance)
             fmu.load(FmuPaths(BOUNCING_BALL_FMU, "$tmp2/extracted", "$tmp2/models"))
             val targetVar = info.variables.keys.first()
-            val result = fmu.simulate(SimulationConfig(
-                stopTime = 0.05,
-                outputVariables = listOf(targetVar)
-            ))
+            val result = fmu.simulate(
+                SimulationConfig(
+                    stopTime = 0.05,
+                    outputVariables = listOf(targetVar),
+                ),
+            )
             assertTrue(result.variables.containsKey(targetVar))
             assertEquals(1, result.variables.size)
             fmu.close()

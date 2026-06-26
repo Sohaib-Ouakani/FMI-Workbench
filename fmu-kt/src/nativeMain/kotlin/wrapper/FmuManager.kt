@@ -29,16 +29,12 @@ import wrapper.simulation.results.SimulationResult
  * @throws IllegalStateException if FMU binary loading fails or XML parsing is unsuccessful.
  */
 @OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class)
-class FmuManager(
-    val path: String,
-    val extractedDir: String,
-    val modelsDir: String,
-    preprocessor: FmuPreprocessor
-) : AutoCloseable {
+class FmuManager(val path: String, val extractedDir: String, val modelsDir: String, preprocessor: FmuPreprocessor) :
+    AutoCloseable {
 
     private val fmuLifecycle: FmuLifecycleManager = FmuLifecycleManager(
         preprocessor.prepare(path, modelsDir),
-        extractedDir
+        extractedDir,
     )
     private val infoFmu: InfoManagerFmu
     private val simulationManager: SimulationManager
@@ -57,9 +53,7 @@ class FmuManager(
      * @return [FmuInfo] containing the complete FMU metadata.
      * @throws IllegalStateException if the FMU has not been loaded or XML parsing failed.
      */
-    fun getInfo(): FmuInfo {
-        return infoFmu.extractFmuInfo()
-    }
+    fun getInfo(): FmuInfo = infoFmu.extractFmuInfo()
 
     /**
      * Sets up the experiment with the given simulation configuration.
@@ -82,9 +76,7 @@ class FmuManager(
      * @return A [SimulationResult] containing timestamps and variable values from the simulation.
      * @throws IllegalStateException if the experiment is not set up or simulation config is not initialized.
      */
-    fun executeExperiment(): SimulationResult {
-        return simulationManager.executeSimulation()
-    }
+    fun executeExperiment(): SimulationResult = simulationManager.executeSimulation()
 
     /**
      * Closes the FMU wrapper and releases all associated native resources.

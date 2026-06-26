@@ -6,22 +6,7 @@ import wrapper.fmuData.info.FmuInfo
 import wrapper.simulation.config.SimulationConfig
 import wrapper.simulation.results.SimulationResult
 
-/**
- * High-level wrapper for FMU (Functional Mock-up Unit) operations.
- * Provides a simplified interface for loading, configuring, running, and managing FMU simulations.
- * Implements [AutoCloseable] to ensure proper resource cleanup.
- *
- * This class acts as the main entry point for FMU interactions, hiding complexity of the low-level
- * [FmuManager] and providing a clean API for users.
- *
- * @property fmuPath Path to the FMU file to be loaded.
- * @property resourcesPath Path to the resources directory containing extracted FMU contents.
- * @property modelsDir Directory where compiled models are stored.
- * @property fmuInfo FMU metadata including model name, description, and available variables.
- * @throws IllegalArgumentException if the FMU cannot be loaded or is corrupted.
- */
-class DefaultFmuService(
-) : FmuService {
+class DefaultFmuService : FmuService {
     private var wrapper: FmuManager? = null
     private var loadedFmuPath: String? = null
 
@@ -44,13 +29,12 @@ class DefaultFmuService(
             paths.fmuPath,
             paths.extractedDir,
             paths.modelsDir,
-            createPreprocessor()
+            createPreprocessor(),
         )
     }
 
-    override fun getInfo(): FmuInfo {
-        return wrapper?.getInfo() ?: throw IllegalStateException("Cannot get info: FMU not loaded")
-    }
+    override fun getInfo(): FmuInfo =
+        wrapper?.getInfo() ?: throw IllegalStateException("Cannot get info: FMU not loaded")
 
     override fun simulate(config: SimulationConfig): SimulationResult {
         val fmi = wrapper ?: throw IllegalStateException("Cannot simulate: FMU not loaded")

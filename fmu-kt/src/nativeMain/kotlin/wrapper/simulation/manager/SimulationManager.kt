@@ -34,18 +34,17 @@ import wrapper.simulation.results.SimulationResult
  * @property infoManagerFmu Reference to the [InfoManagerFmu] for FMU metadata queries.
  */
 @OptIn(ExperimentalForeignApi::class)
-class SimulationManager(
-    private val fmiStruct: CPointer<fmi2_import_t>,
-    private val infoManagerFmu: InfoManagerFmu
-) {
+class SimulationManager(private val fmiStruct: CPointer<fmi2_import_t>, private val infoManagerFmu: InfoManagerFmu) {
     /**
      * Indicates whether the simulation has been set up and is ready for execution.
      */
     private var isSimulationSetup: Boolean = false
+
     /**
      * Current simulation configuration, null if not set.
      */
     var simulationConfig: SimulationConfig? = null
+
     /**
      * Results from the last executed simulation, null if no simulation has been run.
      */
@@ -71,7 +70,7 @@ class SimulationManager(
             config.tolerance ?: 0.0,
             config.startTime,
             if (config.stopTime != null) 1 else 0,
-            config.stopTime ?: 0.0
+            config.stopTime ?: 0.0,
         )
 
         fmi2_import_enter_initialization_mode(fmiStruct)
@@ -102,19 +101,16 @@ class SimulationManager(
         val step: Double = config.stepSize
         var time = config.startTime
 
-        // Determina quali variabili leggere
         val variablesToRead = config.outputVariables.ifEmpty {
-            fmuInfo.variables.keys  // tutte le variabili dell'FMU
+            fmuInfo.variables.keys // if no variable is selected then we take all variables
         }
 
         val timestamps = mutableListOf<Double>()
 
-        // Una lista per ogni variabile
         val results = variablesToRead.associateWith { mutableListOf<Double>() }
 
         try {
             memScoped {
-                // Risolvi i value reference per ogni variabile
                 val vrMap = variablesToRead.associateWith { varName ->
                     val variable = fmi2_import_get_variable_by_name(fmiStruct, varName)
                         ?: error("Variabile '$varName' non trovata nell'FMU")
@@ -129,7 +125,6 @@ class SimulationManager(
                     vrArray[i] = vrMap[varName]!!
                 }
 
-
                 println("---- Simulation Start ----")
 
                 while (time < stopTime) {
@@ -141,14 +136,14 @@ class SimulationManager(
                         fmiStruct,
                         time,
                         actualStep,
-                        1
+                        1,
                     )
 
                     fmi2_import_get_real(
                         fmiStruct,
                         vrArray,
                         n.toULong(),
-                        valueArray
+                        valueArray,
                     )
 
                     timestamps.add(time)
@@ -164,7 +159,7 @@ class SimulationManager(
             val results = SimulationResult(
                 timestamps = timestamps,
                 variables = results,
-                config = config
+                config = config,
             )
             simulationResult = results
 
@@ -189,7 +184,7 @@ class SimulationManager(
      * @throws IllegalStateException if the experiment is already instantiated or instantiation fails.
      */
     private fun instantiate(experimentName: String = "default") {
-        if(isSimulationSetup) {
+        if (isSimulationSetup) {
             throw IllegalStateException("Already instanced simulation")
         }
         val status = fmi2_import_instantiate(
@@ -197,7 +192,7 @@ class SimulationManager(
             experimentName,
             fmi2_type_t.fmi2_cosimulation,
             null,
-            0
+            0,
         )
 
         if (status != 0) {

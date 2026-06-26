@@ -20,5 +20,5 @@ data class SimulationConfig(
     val stepSize: Double = 0.01,
     val tolerance: Double? = null,
     val experimentName: String = "Default",
-    val outputVariables: List<String> = emptyList()
+    val outputVariables: List<String> = emptyList(),
 )

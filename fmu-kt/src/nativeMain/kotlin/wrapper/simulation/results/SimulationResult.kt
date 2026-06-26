@@ -13,8 +13,8 @@ import wrapper.simulation.config.SimulationConfig
  * @property config The [SimulationConfig] used to run the simulation.
  */
 @Serializable
-data class SimulationResult (
+data class SimulationResult(
     val timestamps: List<Double>,
     val variables: Map<String, List<Double>>,
-    val config: SimulationConfig
+    val config: SimulationConfig,
 )

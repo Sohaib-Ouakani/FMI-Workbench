@@ -24,10 +24,11 @@ private enum class DLLSTATUS {
      * Indicates successful FMU DLL loading.
      */
     OK,
+
     /**
      * Indicates failure during FMU DLL loading.
      */
-    ERROR
+    ERROR,
 }
 
 /**
@@ -46,6 +47,7 @@ private enum class DLLSTATUS {
 class FmuLifecycleManager(val fmuFile: String, val unpackDir: String) {
     private val context: CPointer<fmi_import_context_t>? = fmi_import_allocate_context(null)
     private var fmiStruct: CPointer<cnames.structs.fmi2_import_t>? = null
+
     /**
      * Indicates whether the FMU can be simulated. True for Co-Simulation FMUs, false for Model Exchange only.
      */
@@ -98,7 +100,6 @@ class FmuLifecycleManager(val fmuFile: String, val unpackDir: String) {
         fmi_import_free_context(context)
     }
 
-    fun requireFmiStruct(): CPointer<cnames.structs.fmi2_import_t> {
-        return fmiStruct ?: throw IllegalStateException("FMU not started")
-    }
+    fun requireFmiStruct(): CPointer<cnames.structs.fmi2_import_t> =
+        fmiStruct ?: throw IllegalStateException("FMU not started")
 }

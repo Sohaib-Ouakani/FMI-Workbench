@@ -5,6 +5,7 @@ on:
     branches-ignore:
         - 'main'
         - 'ci-test'
+        - 'fix/style'
   workflow_dispatch:
 
 jobs:

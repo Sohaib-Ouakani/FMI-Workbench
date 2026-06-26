@@ -1,6 +1,6 @@
+import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
-import org.gradle.internal.os.OperatingSystem
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -25,7 +25,7 @@ dependencies {
 val platformDirName = mapOf(
     "macosArm64" to "mac-aarch64",
     "linuxX64" to "linux-amd64",
-    "mingwX64" to "windows-amd64"
+    "mingwX64" to "windows-amd64",
 )
 
 val fmilibInstallDir = project(":fmilib").layout.buildDirectory.dir("fmilib-install").get().asFile
@@ -43,26 +43,26 @@ kotlin {
         compilations["main"].cinterops {
             val libfmi by creating {
                 headers = files(includeDir.resolve("fmilib.h"))
-                compilerOpts("-I${includeDir}")
+                compilerOpts("-I$includeDir")
             }
         }
         binaries {
             all {
                 if (targetName == "linuxX64") {
                     linkerOpts(
-                        "-L${libDir}",
+                        "-L$libDir",
                         "-lfmilib_shared",
-                        "-Wl,-rpath,${libDir}",
+                        "-Wl,-rpath,$libDir",
                         "-L/usr/lib/x86_64-linux-gnu",
                         "-Wl,--allow-shlib-undefined",
                         "-Wl,--unresolved-symbols=ignore-all",
-                        "-Wl,--warn-unresolved-symbols"
+                        "-Wl,--warn-unresolved-symbols",
                     )
                 } else {
                     linkerOpts(
-                        "-L${libDir}",
+                        "-L$libDir",
                         "-lfmilib_shared",
-                        "-Wl,-rpath,${libDir}"
+                        "-Wl,-rpath,$libDir",
                     )
                 }
             }
