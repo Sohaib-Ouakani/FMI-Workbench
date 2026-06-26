@@ -11,7 +11,7 @@ fun Application.configureCors() {
         allowMethod(HttpMethod.Post)
         allowMethod(HttpMethod.Options)
         allowHeader(HttpHeaders.ContentType)
-        allowHeader(HttpHeaders.ContentDisposition)  // ← ADD THIS
+        allowHeader(HttpHeaders.ContentDisposition)
         allowNonSimpleContentTypes = true
         allowCredentials = true
     }
