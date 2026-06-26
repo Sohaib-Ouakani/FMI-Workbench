@@ -20,10 +20,7 @@ import logger.BackendLogger
 import resources.manager.ResourceManagerService
 import wrapper.simulation.config.SimulationConfig
 
-class RequestHandler(
-    private val resourceManager: ResourceManagerService,
-    private val fmuService: FmuService
-) {
+class RequestHandler(private val resourceManager: ResourceManagerService, private val fmuService: FmuService) {
     suspend fun init(call: RoutingCall) {
         try {
             withContext(Dispatchers.IO) { fmuService.load(resourceManager.fmuPaths()) }
@@ -35,7 +32,7 @@ class RequestHandler(
             BackendLogger.e("Error initializing FMU: ${e.message}")
             call.respondText(
                 "Error initializing FMU: ${e.message}",
-                status = HttpStatusCode.InternalServerError
+                status = HttpStatusCode.InternalServerError,
             )
             return
         }
@@ -50,7 +47,7 @@ class RequestHandler(
         } catch (e: Exception) {
             call.respondText(
                 "Error while getting fmu info: ${e.message}",
-                status = HttpStatusCode.InternalServerError
+                status = HttpStatusCode.InternalServerError,
             )
         }
     }
@@ -60,7 +57,7 @@ class RequestHandler(
             ?: run {
                 call.respondText(
                     "Missing Content-Disposition header with filename",
-                    status = HttpStatusCode.BadRequest
+                    status = HttpStatusCode.BadRequest,
                 )
                 return
             }
@@ -69,7 +66,7 @@ class RequestHandler(
             ?: run {
                 call.respondText(
                     "Filename not found in Content-Disposition header",
-                    status = HttpStatusCode.BadRequest
+                    status = HttpStatusCode.BadRequest,
                 )
                 return
             }
@@ -79,7 +76,7 @@ class RequestHandler(
             BackendLogger.w("Non FMU file upload attempted: $safeName")
             call.respondText(
                 "Only .fmu files are allowed",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.BadRequest,
             )
             return
         }
@@ -131,8 +128,7 @@ class RequestHandler(
         }
     }
 
-
-    fun close(){
+    fun close() {
         fmuService.close()
     }
 }

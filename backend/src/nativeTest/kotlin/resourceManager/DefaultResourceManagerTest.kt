@@ -1,12 +1,12 @@
 package resourceManager
 
+import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
-import kotlin.random.Random
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 import resources.manager.DefaultResourceManager

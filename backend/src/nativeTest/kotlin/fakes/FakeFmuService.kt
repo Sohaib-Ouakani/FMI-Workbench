@@ -22,7 +22,7 @@ class FakeFmuService : FmuService {
         defaultExperimentStep = 0.01,
         fmuKind = "Co-Simulation",
         variables = mapOf("variable1" to "kg", "variable2" to "m"),
-        canSimulate = true
+        canSimulate = true,
     )
 
     override fun load(paths: FmuPaths) {
@@ -35,13 +35,11 @@ class FakeFmuService : FmuService {
         return fmuInfoToReturn
     }
 
-    override fun simulate(config: SimulationConfig): SimulationResult {
-        return SimulationResult(
-            timestamps = listOf(0.0, 0.01),
-            variables = mapOf("variable1" to listOf(0.0, 1.0)),
-            config = config
-        )
-    }
+    override fun simulate(config: SimulationConfig): SimulationResult = SimulationResult(
+        timestamps = listOf(0.0, 0.01),
+        variables = mapOf("variable1" to listOf(0.0, 1.0)),
+        config = config,
+    )
 
     override fun close() {
         closeCalled = true

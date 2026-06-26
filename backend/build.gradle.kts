@@ -1,5 +1,5 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.gradle.internal.os.OperatingSystem
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -14,9 +14,9 @@ repositories {
 }
 
 val platformDirName = mapOf(
-    "macosArm64"  to "mac-aarch64",
-    "linuxX64"    to "linux-amd64",
-    "mingwX64"    to "windows-amd64"
+    "macosArm64" to "mac-aarch64",
+    "linuxX64" to "linux-amd64",
+    "mingwX64" to "windows-amd64",
 )
 val fmilibInstallDir = project(":fmilib").layout.buildDirectory.dir("fmilib-install").get().asFile
 
@@ -34,21 +34,21 @@ kotlin {
                 }
                 if (targetName == "linuxX64") {
                     linkerOpts(
-                        "-L${libDir}",
+                        "-L$libDir",
                         "-lfmilib_shared",
-                        "-Wl,-rpath,${libDir}",
+                        "-Wl,-rpath,$libDir",
                         "-L/usr/lib/x86_64-linux-gnu",
                         "-Wl,--allow-shlib-undefined",
                         "-Wl,--unresolved-symbols=ignore-all",
-                        "-Wl,--warn-unresolved-symbols"
+                        "-Wl,--warn-unresolved-symbols",
                     )
                 } else {
-                linkerOpts(
-                    "-L${libDir}",
-                    "-lfmilib_shared",
-                    "-Wl,-rpath,${libDir}"
-                )
-            }
+                    linkerOpts(
+                        "-L$libDir",
+                        "-lfmilib_shared",
+                        "-Wl,-rpath,$libDir",
+                    )
+                }
             }
         }
     }
@@ -57,8 +57,8 @@ kotlin {
 
     val os = OperatingSystem.current()
     when {
-        os.isMacOsX  -> macosArm64(nativeSetup)
-        os.isLinux   -> linuxX64(nativeSetup)
+        os.isMacOsX -> macosArm64(nativeSetup)
+        os.isLinux -> linuxX64(nativeSetup)
         os.isWindows -> mingwX64(nativeSetup)
         else -> error("Unsupported OS: $os")
     }
@@ -89,7 +89,7 @@ kotlin {
         }
     }
 
-    //fix for warnings related to expect/actual mechanisms
+    // fix for warnings related to expect/actual mechanisms
     targets.all {
         compilations.all {
             compileTaskProvider.configure {

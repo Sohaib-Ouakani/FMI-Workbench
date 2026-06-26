@@ -5,11 +5,11 @@ import kotlinx.io.buffered
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 
+class DefaultResourceManager(arg: String?) : ResourceManagerService {
 
-class   DefaultResourceManager(arg: String?): ResourceManagerService {
     private val baseDir: Path = arg
-        ?.let { Path(it).parent }          // executable path → its parent dir
-        ?: SystemFileSystem.resolve(Path("."))  // fallback to CWD
+        ?.let { Path(it).parent }
+        ?: SystemFileSystem.resolve(Path("."))
     private val resourceDir: Path = Path("$baseDir/resources/")
     private val uploadDir = Path("$resourceDir/models/")
     private val extractedDirPath = Path("$resourceDir/extracted")
@@ -28,18 +28,16 @@ class   DefaultResourceManager(arg: String?): ResourceManagerService {
         SystemFileSystem.delete(path)
     }
 
-    private fun resetUploadDirectory(): Unit =
-        SystemFileSystem.list(uploadDir)
-            .filter { it.name.endsWith(".fmu", ignoreCase = true) }
-            .forEach { SystemFileSystem.delete(it) }
+    private fun resetUploadDirectory(): Unit = SystemFileSystem.list(uploadDir)
+        .filter { it.name.endsWith(".fmu", ignoreCase = true) }
+        .forEach { SystemFileSystem.delete(it) }
 
-    private fun resetExtractedDirectory(): Unit =
-        SystemFileSystem.list(extractedDirPath)
-            .filter {
-                SystemFileSystem.metadataOrNull(it)?.isDirectory == true
-                    || it.name.endsWith(".xml", ignoreCase = true)
-            }
-            .forEach { deleteRecursively(it) }
+    private fun resetExtractedDirectory(): Unit = SystemFileSystem.list(extractedDirPath)
+        .filter {
+            SystemFileSystem.metadataOrNull(it)?.isDirectory == true ||
+                it.name.endsWith(".xml", ignoreCase = true)
+        }
+        .forEach { deleteRecursively(it) }
 
     private fun resetResourcesDirectory() {
         resetExtractedDirectory()
@@ -56,7 +54,7 @@ class   DefaultResourceManager(arg: String?): ResourceManagerService {
         return FmuPaths(
             fmuPath = path.toString(),
             extractedDir = extractedDirPath.toString(),
-            modelsDir = uploadDir.toString()
+            modelsDir = uploadDir.toString(),
         )
     }
 
@@ -65,6 +63,7 @@ class   DefaultResourceManager(arg: String?): ResourceManagerService {
         val filePath = Path(uploadDir, fileName)
 
         SystemFileSystem.sink(filePath).buffered().use { it.write(data) }
+
         fmuPath = filePath
     }
 }

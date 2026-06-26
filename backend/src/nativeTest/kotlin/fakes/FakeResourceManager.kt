@@ -12,7 +12,7 @@ class FakeResourceManager : ResourceManagerService {
     var fmuPathsToReturn: FmuPaths = FmuPaths(
         fmuPath = "/fake/path/model.fmu",
         extractedDir = "/fake/path/extracted",
-        modelsDir = "/fake/path/models"
+        modelsDir = "/fake/path/models",
     )
 
     override fun fmuPaths(): FmuPaths {

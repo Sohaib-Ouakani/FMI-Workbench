@@ -1,7 +1,7 @@
 package logger
 
 object BackendLogger {
-    var enabled = true   // toggle off for release builds
+    var enabled = true
 
     fun d(msg: String) = if (enabled) println("BACKEND -- DEBUG: $msg") else Unit
     fun i(msg: String) = if (enabled) println("BACKEND -- INFO: $msg") else Unit
