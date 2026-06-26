@@ -8,8 +8,8 @@ import kotlinx.io.files.SystemFileSystem
 
 class   DefaultResourceManager(arg: String?): ResourceManagerService {
     private val baseDir: Path = arg
-        ?.let { Path(it).parent }
-        ?: SystemFileSystem.resolve(Path("."))
+        ?.let { Path(it).parent }          // executable path → its parent dir
+        ?: SystemFileSystem.resolve(Path("."))  // fallback to CWD
     private val resourceDir: Path = Path("$baseDir/resources/")
     private val uploadDir = Path("$resourceDir/models/")
     private val extractedDirPath = Path("$resourceDir/extracted")
