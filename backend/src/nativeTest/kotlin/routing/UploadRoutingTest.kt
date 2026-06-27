@@ -25,6 +25,8 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
 import requestHandler.RequestHandler
 
+private const val BODY_SIZE = 64
+
 // The server is started once per class.  Because individual tests assert on
 // FakeResourceManager state (lastSavedFileName, etc.), the fake is reset in
 // @BeforeTest without restarting the server.
@@ -60,7 +62,7 @@ class UploadRoutingTest {
         val response = client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment; filename=\"BouncingBall.fmu\"")
             contentType(ContentType.Application.OctetStream)
-            setBody(ByteArray(64) { it.toByte() })
+            setBody(ByteArray(BODY_SIZE) { it.toByte() })
         }
         assertEquals(HttpStatusCode.OK, response.status)
     }
@@ -70,14 +72,14 @@ class UploadRoutingTest {
         client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment; filename=\"BouncingBall.fmu\"")
             contentType(ContentType.Application.OctetStream)
-            setBody(ByteArray(64) { it.toByte() })
+            setBody(ByteArray(BODY_SIZE) { it.toByte() })
         }
         assertEquals("BouncingBall.fmu", rm.lastSavedFileName)
     }
 
     @Test
     fun `upload valid fmu saves correct bytes`() = runBlocking {
-        val payload = ByteArray(64) { it.toByte() }
+        val payload = ByteArray(BODY_SIZE) { it.toByte() }
         client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment; filename=\"BouncingBall.fmu\"")
             contentType(ContentType.Application.OctetStream)
@@ -92,7 +94,7 @@ class UploadRoutingTest {
         val response = client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment; filename=\"Model.FMU\"")
             contentType(ContentType.Application.OctetStream)
-            setBody(ByteArray(64))
+            setBody(ByteArray(BODY_SIZE))
         }
         assertEquals(HttpStatusCode.OK, response.status)
     }
@@ -103,7 +105,7 @@ class UploadRoutingTest {
     fun `upload missing Content-Disposition header returns 400`() = runBlocking {
         val response = client.post(uploadUrl()) {
             contentType(ContentType.Application.OctetStream)
-            setBody(ByteArray(64))
+            setBody(ByteArray(BODY_SIZE))
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
     }
@@ -112,7 +114,7 @@ class UploadRoutingTest {
     fun `upload missing Content-Disposition includes error message`() = runBlocking {
         val response = client.post(uploadUrl()) {
             contentType(ContentType.Application.OctetStream)
-            setBody(ByteArray(64))
+            setBody(ByteArray(BODY_SIZE))
         }
         assertTrue(response.bodyAsText().contains("Missing Content-Disposition"))
     }
@@ -122,7 +124,7 @@ class UploadRoutingTest {
         val response = client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment")
             contentType(ContentType.Application.OctetStream)
-            setBody(ByteArray(64))
+            setBody(ByteArray(BODY_SIZE))
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
     }
@@ -132,7 +134,7 @@ class UploadRoutingTest {
         val response = client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment")
             contentType(ContentType.Application.OctetStream)
-            setBody(ByteArray(64))
+            setBody(ByteArray(BODY_SIZE))
         }
         assertTrue(response.bodyAsText().contains("Filename not found"))
     }
@@ -144,7 +146,7 @@ class UploadRoutingTest {
         val response = client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment; filename=\"model.zip\"")
             contentType(ContentType.Application.OctetStream)
-            setBody(ByteArray(64))
+            setBody(ByteArray(BODY_SIZE))
         }
         assertEquals(HttpStatusCode.BadRequest, response.status)
     }
@@ -154,7 +156,7 @@ class UploadRoutingTest {
         val response = client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment; filename=\"model.zip\"")
             contentType(ContentType.Application.OctetStream)
-            setBody(ByteArray(64))
+            setBody(ByteArray(BODY_SIZE))
         }
         assertTrue(response.bodyAsText().contains("Only .fmu files are allowed"))
     }
@@ -166,7 +168,7 @@ class UploadRoutingTest {
         client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment; filename=\"../evil/path.fmu\"")
             contentType(ContentType.Application.OctetStream)
-            setBody(ByteArray(64))
+            setBody(ByteArray(BODY_SIZE))
         }
         assertEquals(".._evil_path.fmu", rm.lastSavedFileName)
     }
@@ -176,7 +178,7 @@ class UploadRoutingTest {
         client.post(uploadUrl()) {
             header(HttpHeaders.ContentDisposition, "attachment; filename=\"my:model*.fmu\"")
             contentType(ContentType.Application.OctetStream)
-            setBody(ByteArray(64))
+            setBody(ByteArray(BODY_SIZE))
         }
         assertEquals("my_model_.fmu", rm.lastSavedFileName)
     }

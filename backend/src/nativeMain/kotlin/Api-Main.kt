@@ -2,8 +2,8 @@ import configuration.configureCors
 import configuration.configureRouting
 import fmu.DefaultFmuService
 import io.ktor.server.application.ApplicationStopped
-import io.ktor.server.cio.*
-import io.ktor.server.engine.*
+import io.ktor.server.cio.CIO
+import io.ktor.server.engine.embeddedServer
 import requestHandler.RequestHandler
 import resources.manager.DefaultResourceManager
 

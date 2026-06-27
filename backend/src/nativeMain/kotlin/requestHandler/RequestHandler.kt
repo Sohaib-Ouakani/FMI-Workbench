@@ -92,7 +92,7 @@ class RequestHandler(private val resourceManager: ResourceManagerService, privat
             fmuService.getInfo()
         } catch (e: Exception) {
             call.respondText(
-                "Cannot simulate: FMU not loaded. Call /fmi/init first.",
+                "Cannot simulate: FMU not loaded. Call /fmi/init first: ${e.message}",
                 status = HttpStatusCode.BadRequest,
             )
             return
