@@ -1,8 +1,9 @@
 package utility
 
+import kotlin.test.Test
+import kotlin.test.assertTrue
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
-import kotlin.test.*
 
 private fun tempDir(name: String): String {
     val p = "/tmp/headers_test_$name"
@@ -12,8 +13,9 @@ private fun tempDir(name: String): String {
 
 private fun deleteDir(path: String) {
     fun rec(p: Path) {
-        if (SystemFileSystem.metadataOrNull(p)?.isDirectory == true)
+        if (SystemFileSystem.metadataOrNull(p)?.isDirectory == true) {
             SystemFileSystem.list(p).forEach { rec(it) }
+        }
         SystemFileSystem.delete(p)
     }
     rec(Path(path))
@@ -30,7 +32,9 @@ class FmiHeaderSynthesiserTest {
         try {
             synthesiser.synthesise(tmp)
             assertTrue(fs.fileExists("$tmp/fmi2FunctionTypes.h"))
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -39,7 +43,9 @@ class FmiHeaderSynthesiserTest {
         try {
             synthesiser.synthesise(tmp)
             assertTrue(fs.fileExists("$tmp/fmi2Functions.h"))
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -48,7 +54,9 @@ class FmiHeaderSynthesiserTest {
         try {
             synthesiser.synthesise(tmp)
             assertTrue(fs.fileExists("$tmp/fmi2TypesPlatform.h"))
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -58,7 +66,9 @@ class FmiHeaderSynthesiserTest {
             synthesiser.synthesise(tmp)
             val content = fs.readFile("$tmp/fmi2TypesPlatform.h")
             assertTrue(content.contains("fmi2Real"))
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -68,7 +78,9 @@ class FmiHeaderSynthesiserTest {
             synthesiser.synthesise(tmp)
             val content = fs.readFile("$tmp/fmi2FunctionTypes.h")
             assertTrue(content.contains("fmi2Status"))
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -78,7 +90,9 @@ class FmiHeaderSynthesiserTest {
             synthesiser.synthesise(tmp)
             val content = fs.readFile("$tmp/fmi2Functions.h")
             assertTrue(content.contains("fmi2Version"))
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -87,6 +101,8 @@ class FmiHeaderSynthesiserTest {
         try {
             synthesiser.synthesise(tmp)
             synthesiser.synthesise(tmp) // second call must overwrite safely
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 }

@@ -35,10 +35,10 @@ class FmuRecompiler {
      * @param outputFmu The file path where the recompiled FMU will be saved.
      * @throws IllegalStateException if the input FMU does not exist or lacks source files.
      */
-     fun recompile(inputFmu: String, outputFmu: String) {
+    fun recompile(inputFmu: String, outputFmu: String) {
         val input = fs.pathAbsolute(inputFmu)
         val output = fs.pathAbsolute(outputFmu)
-        if(!fs.fileExists(input)) {
+        if (!fs.fileExists(input)) {
             throw IllegalArgumentException("FMU not found: $input")
         }
 
@@ -48,7 +48,7 @@ class FmuRecompiler {
 
             val xml = fs.readFile("$extracted/modelDescription.xml")
             val parser = DescriptionParser(xml)
-            val modelId  = parser.findModelId()
+            val modelId = parser.findModelId()
             val sourcesDir = "$extracted/sources"
 
             check(access(sourcesDir, F_OK) == 0) { "No source folder, precompiled FMU" }
@@ -63,7 +63,7 @@ class FmuRecompiler {
                     sources = sources,
                     target = target,
                     includeDir = sourcesDir,
-                    outDir = "$tmp/obj_$arch"
+                    outDir = "$tmp/obj_$arch",
                 )
             }
 
@@ -71,18 +71,18 @@ class FmuRecompiler {
             val aliasFlags = complier.discoverAliasFlags(
                 objs = objsByArch.values.first(),
                 modelId = modelId,
-                fmiPrefix = fmiPrefix
+                fmiPrefix = fmiPrefix,
             )
 
             val slices = targets.map { target ->
-                val arch  = target.substringBefore("-")
+                val arch = target.substringBefore("-")
                 val slice = "$tmp/$arch.dylib"
 
                 complier.linkDylib(
                     objs = objsByArch[target]!!,
                     target = target,
                     aliasFlags = aliasFlags,
-                    out = slice
+                    out = slice,
                 )
                 slice
             }
@@ -90,7 +90,7 @@ class FmuRecompiler {
             val universal = "$tmp/$modelId.dylib"
             complier.createUniversalBinary(
                 slices = slices,
-                out = universal
+                out = universal,
             )
 
             val binDest = "$extracted/binaries/darwin64"
@@ -102,5 +102,4 @@ class FmuRecompiler {
             packager.zip(extracted, output)
         }
     }
-
 }

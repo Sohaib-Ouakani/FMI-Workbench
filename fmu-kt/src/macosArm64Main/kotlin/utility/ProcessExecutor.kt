@@ -24,9 +24,9 @@ class ProcessExecutor {
      *             should be the command name and subsequent elements should be the arguments.
      * @return The exit status code of the executed command. Returns 0 on success.
      */
-    fun run (vararg args: String): Int {
+    fun run(vararg args: String): Int {
         val cmd = args.joinToString(" ") { if (it.contains(" ")) "\"$it\"" else it }
-        //println(cmd)
+        // println(cmd)
         return system(cmd)
     }
 

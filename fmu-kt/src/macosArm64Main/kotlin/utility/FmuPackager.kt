@@ -6,9 +6,7 @@ package utility
  *
  * @param exec The [ProcessExecutor] instance used to run system commands like unzip and zip.
  */
-class FmuPackager(
-    private val exec: ProcessExecutor
-) {
+class FmuPackager(private val exec: ProcessExecutor) {
     /**
      * Extracts the contents of an FMU file to a specified destination directory.
      *

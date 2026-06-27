@@ -7,9 +7,7 @@ package utility
  *
  * @param exec The [ProcessExecutor] instance used to run Clang commands.
  */
-class ClangComplier(
-    private val exec: ProcessExecutor
-) {
+class ClangComplier(private val exec: ProcessExecutor) {
     /**
      * Compiles C source files to object files for a specific target architecture.
      *
@@ -20,12 +18,7 @@ class ClangComplier(
      * @return A list of paths to the generated object files.
      * @throws IllegalStateException if compilation fails for any source file.
      */
-    fun compileObjects(
-        sources: List<String>,
-        target: String,
-        includeDir: String,
-        outDir: String
-    ): List<String> {
+    fun compileObjects(sources: List<String>, target: String, includeDir: String, outDir: String): List<String> {
         exec.run("mkdir", "-p", outDir)
         return sources.map { src ->
             val obj = "$outDir/${src.substringAfterLast('/').removeSuffix(".c")}.o"
@@ -38,14 +31,8 @@ class ClangComplier(
                     "-include", "unistd.h",
                     "-c", "-fPIC", "-O2",
                     "-I$includeDir",
-//                    "-Wno-implicit-function-declaration",
-//                    "-Wno-deprecated-non-prototype",
-//                    "-Wno-shift-op-parentheses",
-//                    "-Wno-absolute-value",
-//                    "-Wno-parentheses",
-//                    "-Wno-switch",
-                    src, "-o", obj
-                ) == 0
+                    src, "-o", obj,
+                ) == 0,
             ) { "Compilation failed: $src [${target.substringBefore("-")}]" }
             obj
         }
@@ -60,12 +47,7 @@ class ClangComplier(
      * @param out The output path for the generated dynamic library.
      * @throws IllegalStateException if linking fails.
      */
-    fun linkDylib(
-        objs: List<String>,
-        target: String,
-        aliasFlags: List<String>,
-        out: String
-    ) {
+    fun linkDylib(objs: List<String>, target: String, aliasFlags: List<String>, out: String) {
         check(
             exec.run(
                 "clang",
@@ -75,8 +57,8 @@ class ClangComplier(
                 *objs.toTypedArray(),
                 "-lm",
                 "-Wl,-undefined,dynamic_lookup",
-                "-o", out
-            ) == 0
+                "-o", out,
+            ) == 0,
         ) { "Link failed [${target.substringBefore("-")}]" }
     }
 
@@ -87,7 +69,7 @@ class ClangComplier(
      * @param out The output path for the generated universal binary.
      * @throws IllegalStateException if the command for generating universal binary fails.
      */
-    fun createUniversalBinary(slices:  List<String>, out: String) {
+    fun createUniversalBinary(slices: List<String>, out: String) {
         check(exec.run("lipo", "-create", *slices.toTypedArray(), "-output", out) == 0) {
             "generation of of universal binary failed: lipo failed"
         }
@@ -102,18 +84,17 @@ class ClangComplier(
      * @param fmiPrefix The FMI prefix (e.g., "fmi2") to filter relevant symbols.
      * @return A list of linker flags for creating symbol aliases.
      */
-    fun discoverAliasFlags(objs: List<String>, modelId: String, fmiPrefix: String): List<String> =
-        objs.flatMap { obj ->
-            exec.runWithOutput("nm", "--defined-only", obj)
-                .lines()
-                .mapNotNull {
-                    Regex("""[_]?(${modelId}_${fmiPrefix}[A-Za-z]+)""")
-                        .find(it)?.groupValues?.get(1)
-                }
-                .toSet()
-                .map { raw ->
-                    val suffix = raw.removePrefix("${modelId}_")
-                    "-Wl,-alias,_$raw,_$suffix"
-                }
-        }.distinct()
+    fun discoverAliasFlags(objs: List<String>, modelId: String, fmiPrefix: String): List<String> = objs.flatMap { obj ->
+        exec.runWithOutput("nm", "--defined-only", obj)
+            .lines()
+            .mapNotNull {
+                Regex("""[_]?(${modelId}_$fmiPrefix[A-Za-z]+)""")
+                    .find(it)?.groupValues?.get(1)
+            }
+            .toSet()
+            .map { raw ->
+                val suffix = raw.removePrefix("${modelId}_")
+                "-Wl,-alias,_$raw,_$suffix"
+            }
+    }.distinct()
 }

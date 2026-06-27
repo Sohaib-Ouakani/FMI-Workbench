@@ -1,8 +1,12 @@
 package utility
 
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
-import kotlin.test.*
 
 private fun tempDir(name: String): String {
     val p = "/tmp/fsmanager_test_$name"
@@ -12,8 +16,9 @@ private fun tempDir(name: String): String {
 
 private fun deleteDir(path: String) {
     fun rec(p: Path) {
-        if (SystemFileSystem.metadataOrNull(p)?.isDirectory == true)
+        if (SystemFileSystem.metadataOrNull(p)?.isDirectory == true) {
             SystemFileSystem.list(p).forEach { rec(it) }
+        }
         SystemFileSystem.delete(p)
     }
     rec(Path(path))
@@ -35,7 +40,9 @@ class FilesystemManagerTest {
             val file = "$tmp/test.txt"
             fs.writeFile(file, "hello")
             assertTrue(fs.fileExists(file))
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -45,7 +52,9 @@ class FilesystemManagerTest {
             val file = "$tmp/out.txt"
             fs.writeFile(file, "content")
             assertTrue(fs.fileExists(file))
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -55,7 +64,9 @@ class FilesystemManagerTest {
             val file = "$tmp/data.txt"
             fs.writeFile(file, "hello world")
             assertEquals("hello world", fs.readFile(file))
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -65,7 +76,9 @@ class FilesystemManagerTest {
             val file = "$tmp/padded.txt"
             fs.writeFile(file, "  trimmed  ")
             assertEquals("trimmed", fs.readFile(file))
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test
@@ -83,7 +96,9 @@ class FilesystemManagerTest {
             fs.writeFile(file, "first")
             fs.writeFile(file, "second")
             assertEquals("second", fs.readFile(file))
-        } finally { deleteDir(tmp) }
+        } finally {
+            deleteDir(tmp)
+        }
     }
 
     @Test

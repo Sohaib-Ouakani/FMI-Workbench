@@ -24,7 +24,6 @@ class DescriptionParser(xmlDescription: String) {
     val kindElement = doc.selectFirst("CoSimulation, ModelExchange")
         ?: error("No CoSimulation/ModelExchange tag found — invalid modelDescription.xml")
 
-
     /**
      * Extracts the list of source files referenced in the modelDescription.xml.
      *

@@ -81,7 +81,5 @@ class FilesystemManager {
      * @param name The file or directory path to check.
      * @return True if the file or directory exists, false otherwise.
      */
-    fun fileExists(name: String): Boolean {
-        return access(name, F_OK) == 0
-    }
+    fun fileExists(name: String): Boolean = access(name, F_OK) == 0
 }

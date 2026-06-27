@@ -1,17 +1,20 @@
 package recompiler
 
+import kotlin.test.Test
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
-import kotlin.test.*
 
 // Path is relative to the module root, where Gradle runs the test binary
 private const val BOUNCING_BALL_FMU = "src/nativeTest/resources/BouncingBall.fmu"
 
 private fun deleteDir(path: String) {
     fun rec(p: Path) {
-        if (SystemFileSystem.metadataOrNull(p)?.isDirectory == true)
+        if (SystemFileSystem.metadataOrNull(p)?.isDirectory == true) {
             SystemFileSystem.list(p).forEach { rec(it) }
+        }
         SystemFileSystem.delete(p)
     }
     if (SystemFileSystem.metadataOrNull(Path(path)) != null) rec(Path(path))
@@ -29,9 +32,11 @@ class FmuRecompilerIntegrationTest {
             FmuRecompiler().recompile(BOUNCING_BALL_FMU, outFmu)
             assertTrue(
                 SystemFileSystem.metadataOrNull(Path(outFmu)) != null,
-                "Output FMU was not created at $outFmu"
+                "Output FMU was not created at $outFmu",
             )
-        } finally { deleteDir(outDir) }
+        } finally {
+            deleteDir(outDir)
+        }
     }
 
     @Test
@@ -43,7 +48,9 @@ class FmuRecompilerIntegrationTest {
             FmuRecompiler().recompile(BOUNCING_BALL_FMU, outFmu)
             val size = SystemFileSystem.metadataOrNull(Path(outFmu))?.size ?: 0L
             assertTrue(size > 0L, "Output FMU is empty")
-        } finally { deleteDir(outDir) }
+        } finally {
+            deleteDir(outDir)
+        }
     }
 
     @Test
