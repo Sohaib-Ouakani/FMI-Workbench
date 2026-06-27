@@ -1,8 +1,8 @@
 package screens
 
+import AccentAmber
 import AccentCyan
 import AccentGreen
-import AccentAmber
 import AccentRed
 import BgElevated
 import BgSurface
@@ -12,12 +12,33 @@ import TextSecondary
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -29,8 +50,8 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.example.fmi_client.client.SimulationConfig
-import com.example.fmi_client.client.runSimulation
+import client.SimulationConfig
+import client.runSimulation
 import kotlinx.coroutines.launch
 
 private const val MAX_SELECTED_VARIABLES = 10
@@ -40,24 +61,27 @@ class SimulationScreen(private val variables: Map<String, String>) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val scope     = rememberCoroutineScope()
+        val scope = rememberCoroutineScope()
 
-        var searchQuery       by remember { mutableStateOf("") }
+        var searchQuery by remember { mutableStateOf("") }
         var selectedVariables by remember { mutableStateOf(setOf<String>()) }
-        var stopTime          by remember { mutableStateOf("10.0") }
-        var stepSize          by remember { mutableStateOf("0.01") }
-        var startTime         by remember { mutableStateOf("0.0") }
-        var errorMessage      by remember { mutableStateOf<String?>(null) }
-        var isRunning         by remember { mutableStateOf(false) }
+        var stopTime by remember { mutableStateOf("10.0") }
+        var stepSize by remember { mutableStateOf("0.01") }
+        var startTime by remember { mutableStateOf("0.0") }
+        var errorMessage by remember { mutableStateOf<String?>(null) }
+        var isRunning by remember { mutableStateOf(false) }
 
         val filteredVariables = remember(searchQuery, variables) {
-            if (searchQuery.isBlank()) variables
-            else variables.filter { it.key.contains(searchQuery, ignoreCase = true) }
+            if (searchQuery.isBlank()) {
+                variables
+            } else {
+                variables.filter { it.key.contains(searchQuery, ignoreCase = true) }
+            }
         }
 
         // Derived validation
-        val stopVal  = stopTime.toDoubleOrNull()
-        val stepVal  = stepSize.toDoubleOrNull()
+        val stopVal = stopTime.toDoubleOrNull()
+        val stepVal = stepSize.toDoubleOrNull()
         val startVal = startTime.toDoubleOrNull()
         val paramsValid = stopVal != null && stopVal > 0.0 &&
             stepVal != null && stepVal > 0.0 && stepVal < stopVal &&
@@ -67,7 +91,7 @@ class SimulationScreen(private val variables: Map<String, String>) : Screen {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.background),
         ) {
             Column(
                 modifier = Modifier
@@ -75,7 +99,6 @@ class SimulationScreen(private val variables: Map<String, String>) : Screen {
                     .padding(horizontal = 32.dp, vertical = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-
                 // ── Header ────────────────────────────────────────────────────
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -103,7 +126,9 @@ class SimulationScreen(private val variables: Map<String, String>) : Screen {
                             Text(
                                 text = "~$estimatedPoints STEPS",
                                 style = MaterialTheme.typography.labelSmall.copy(
-                                    color = AccentCyan, fontWeight = FontWeight.Bold, letterSpacing = 1.2.sp,
+                                    color = AccentCyan,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 1.2.sp,
                                 ),
                             )
                         }
@@ -116,9 +141,9 @@ class SimulationScreen(private val variables: Map<String, String>) : Screen {
                         .height(1.dp)
                         .background(
                             Brush.horizontalGradient(
-                                listOf(Color.Transparent, AccentCyan.copy(0.5f), Color.Transparent)
-                            )
-                        )
+                                listOf(Color.Transparent, AccentCyan.copy(0.5f), Color.Transparent),
+                            ),
+                        ),
                 )
 
                 // ── Main two-column layout ────────────────────────────────────
@@ -126,7 +151,6 @@ class SimulationScreen(private val variables: Map<String, String>) : Screen {
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-
                     // LEFT — parameters panel
                     EngineeringCard(modifier = Modifier.width(280.dp).fillMaxHeight()) {
                         Column(
@@ -235,7 +259,8 @@ class SimulationScreen(private val variables: Map<String, String>) : Screen {
                                     Text(
                                         "SELECT FIRST $MAX_SELECTED_VARIABLES",
                                         style = MaterialTheme.typography.labelSmall.copy(
-                                            color = AccentCyan.copy(0.7f), fontSize = 9.sp,
+                                            color = AccentCyan.copy(0.7f),
+                                            fontSize = 9.sp,
                                         ),
                                     )
                                 }
@@ -246,7 +271,8 @@ class SimulationScreen(private val variables: Map<String, String>) : Screen {
                                     Text(
                                         "CLEAR ALL",
                                         style = MaterialTheme.typography.labelSmall.copy(
-                                            color = AccentRed.copy(0.7f), fontSize = 9.sp,
+                                            color = AccentRed.copy(0.7f),
+                                            fontSize = 9.sp,
                                         ),
                                     )
                                 }
@@ -330,12 +356,7 @@ class SimulationScreen(private val variables: Map<String, String>) : Screen {
 // ── Sub-composables ───────────────────────────────────────────────────────────
 
 @Composable
-private fun EngNumberField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
-    isValid: Boolean,
-) {
+private fun EngNumberField(label: String, value: String, onValueChange: (String) -> Unit, isValid: Boolean) {
     val color = if (isValid) AccentCyan.copy(0.6f) else AccentRed.copy(0.7f)
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(
@@ -350,13 +371,13 @@ private fun EngNumberField(
             textStyle = MaterialTheme.typography.bodyMedium,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor   = AccentCyan,
+                focusedBorderColor = AccentCyan,
                 unfocusedBorderColor = color,
-                focusedTextColor     = TextPrimary,
-                unfocusedTextColor   = TextPrimary,
-                cursorColor          = AccentCyan,
+                focusedTextColor = TextPrimary,
+                unfocusedTextColor = TextPrimary,
+                cursorColor = AccentCyan,
                 unfocusedContainerColor = BgElevated,
-                focusedContainerColor   = BgElevated,
+                focusedContainerColor = BgElevated,
             ),
         )
     }
@@ -377,13 +398,13 @@ private fun EngSearchField(value: String, onValueChange: (String) -> Unit) {
         singleLine = true,
         textStyle = MaterialTheme.typography.bodySmall,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor      = AccentCyan,
-            unfocusedBorderColor    = BorderSubtle,
-            focusedTextColor        = TextPrimary,
-            unfocusedTextColor      = TextPrimary,
-            cursorColor             = AccentCyan,
+            focusedBorderColor = AccentCyan,
+            unfocusedBorderColor = BorderSubtle,
+            focusedTextColor = TextPrimary,
+            unfocusedTextColor = TextPrimary,
+            cursorColor = AccentCyan,
             unfocusedContainerColor = BgElevated,
-            focusedContainerColor   = BgElevated,
+            focusedContainerColor = BgElevated,
         ),
     )
 }
@@ -391,9 +412,9 @@ private fun EngSearchField(value: String, onValueChange: (String) -> Unit) {
 @Composable
 private fun SelectionBadge(selected: Int, max: Int) {
     val color = when {
-        selected == 0   -> TextSecondary
+        selected == 0 -> TextSecondary
         selected >= max -> AccentAmber
-        else            -> AccentGreen
+        else -> AccentGreen
     }
     Box(
         modifier = Modifier
@@ -408,13 +429,7 @@ private fun SelectionBadge(selected: Int, max: Int) {
 }
 
 @Composable
-private fun VariableRow(
-    name: String,
-    mesure: String,
-    isSelected: Boolean,
-    enabled: Boolean,
-    onToggle: () -> Unit,
-) {
+private fun VariableRow(name: String, mesure: String, isSelected: Boolean, enabled: Boolean, onToggle: () -> Unit) {
     val bg = if (isSelected) AccentCyan.copy(0.10f) else BgElevated
     Row(
         modifier = Modifier
@@ -450,13 +465,7 @@ private fun VariableRow(
 }
 
 @Composable
-private fun ParamSummary(
-    start: String,
-    stop: String,
-    step: String,
-    points: Int?,
-    valid: Boolean,
-) {
+private fun ParamSummary(start: String, stop: String, step: String, points: Int?, valid: Boolean) {
     val borderColor = if (valid) AccentCyan.copy(0.3f) else BorderSubtle
     Column(
         modifier = Modifier
@@ -471,8 +480,8 @@ private fun ParamSummary(
             style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary, letterSpacing = 1.2.sp),
         )
         SummaryLine("Interval", "[$start, $stop] s")
-        SummaryLine("Step",     "$step s")
-        SummaryLine("Points",   if (points != null) "~$points" else "—")
+        SummaryLine("Step", "$step s")
+        SummaryLine("Points", if (points != null) "~$points" else "—")
     }
 }
 

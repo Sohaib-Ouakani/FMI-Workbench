@@ -9,10 +9,20 @@ import TextPrimary
 import TextSecondary
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,7 +35,7 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.example.fmi_client.client.SimulationResult
+import client.SimulationResult
 import io.github.koalaplot.core.line.LinePlot
 import io.github.koalaplot.core.style.LineStyle
 import io.github.koalaplot.core.util.ExperimentalKoalaPlotApi
@@ -49,31 +59,29 @@ private val seriesColors = listOf(
     Color(0xFFCCA300),
 )
 
-class ChartScreen(
-    private val result: SimulationResult,
-    private val variableUnits: Map<String, String> = emptyMap()
-) : Screen {
+class ChartScreen(private val result: SimulationResult, private val variableUnits: Map<String, String> = emptyMap()) :
+    Screen {
 
     @OptIn(ExperimentalKoalaPlotApi::class)
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
 
-        val times   = result.timestamps.map { it.toFloat() }
+        val times = result.timestamps.map { it.toFloat() }
         val timeMin = times.minOrNull() ?: 0f
         val timeMax = times.maxOrNull() ?: 1f
 
         val allValues = result.variables.values.flatten().map { it.toFloat() }
-        val yMin      = allValues.minOrNull() ?: 0f
-        val yMax      = allValues.maxOrNull() ?: 1f
-        val yPadding  = ((yMax - yMin) * 0.08f).coerceAtLeast(0.001f)
+        val yMin = allValues.minOrNull() ?: 0f
+        val yMax = allValues.maxOrNull() ?: 1f
+        val yPadding = ((yMax - yMin) * 0.08f).coerceAtLeast(0.001f)
 
         val variableNames = result.variables.keys.toList()
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.background),
         ) {
             Column(
                 modifier = Modifier
@@ -81,7 +89,6 @@ class ChartScreen(
                     .padding(horizontal = 32.dp, vertical = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
-
                 // ── Header ────────────────────────────────────────────────────
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -108,7 +115,9 @@ class ChartScreen(
                         Text(
                             "COMPLETE",
                             style = MaterialTheme.typography.labelSmall.copy(
-                                color = AccentGreen, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp,
+                                color = AccentGreen,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.5.sp,
                             ),
                         )
                     }
@@ -120,9 +129,9 @@ class ChartScreen(
                         .height(1.dp)
                         .background(
                             Brush.horizontalGradient(
-                                listOf(Color.Transparent, AccentCyan.copy(0.5f), Color.Transparent)
-                            )
-                        )
+                                listOf(Color.Transparent, AccentCyan.copy(0.5f), Color.Transparent),
+                            ),
+                        ),
                 )
 
                 // ── Stats strip ───────────────────────────────────────────────
@@ -149,7 +158,7 @@ class ChartScreen(
                                 modifier = Modifier
                                     .width(16.dp)
                                     .height(3.dp)
-                                    .background(colour)
+                                    .background(colour),
                             )
                             Text(
                                 text = "$name [$unit]",
@@ -171,10 +180,10 @@ class ChartScreen(
                     @Suppress("DEPRECATION")
                     XYGraph(
                         xAxisModel = FloatLinearAxisModel(timeMin..timeMax),
-                        yAxisModel  = FloatLinearAxisModel((yMin - yPadding)..(yMax + yPadding)),
-                        xAxisTitle  = "Time (s)",
-                        yAxisTitle  = "Value",
-                        modifier    = Modifier.fillMaxSize(),
+                        yAxisModel = FloatLinearAxisModel((yMin - yPadding)..(yMax + yPadding)),
+                        xAxisTitle = "Time (s)",
+                        yAxisTitle = "Value",
+                        modifier = Modifier.fillMaxSize(),
                     ) {
                         variableNames.forEachIndexed { index, name ->
                             val colour = seriesColors[index % seriesColors.size]
@@ -183,9 +192,9 @@ class ChartScreen(
                                 .map { (t, v) -> DefaultPoint(t, v) }
 
                             LinePlot(
-                                data      = points,
+                                data = points,
                                 lineStyle = LineStyle(
-                                    brush       = SolidColor(colour),
+                                    brush = SolidColor(colour),
                                     strokeWidth = 2.dp,
                                 ),
                             )
@@ -228,12 +237,7 @@ private fun roundToString(value: Float, decimals: Int = 4): String {
 }
 
 @Composable
-private fun StatsStrip(
-    result: SimulationResult,
-    pointCount: Int,
-    yMin: Float,
-    yMax: Float,
-) {
+private fun StatsStrip(result: SimulationResult, pointCount: Int, yMin: Float, yMax: Float) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -250,9 +254,9 @@ private fun StatsStrip(
         StatDivider()
         StatCell("POINTS", "$pointCount")
         StatDivider()
-        StatCell("Y_MIN",  roundToString(yMin))
+        StatCell("Y_MIN", roundToString(yMin))
         StatDivider()
-        StatCell("Y_MAX",  roundToString(yMax))
+        StatCell("Y_MAX", roundToString(yMax))
         StatDivider()
         StatCell("SERIES", "${result.variables.size}")
     }
@@ -262,13 +266,14 @@ private fun StatsStrip(
 private fun StatCell(label: String, value: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            text  = label,
+            text = label,
             style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary, letterSpacing = 1.sp),
         )
         Text(
-            text  = value,
+            text = value,
             style = MaterialTheme.typography.bodySmall.copy(
-                color = TextPrimary, fontWeight = FontWeight.Bold,
+                color = TextPrimary,
+                fontWeight = FontWeight.Bold,
             ),
         )
     }
@@ -280,6 +285,6 @@ private fun StatDivider() {
         modifier = Modifier
             .height(28.dp)
             .width(1.dp)
-            .background(BorderSubtle)
+            .background(BorderSubtle),
     )
 }

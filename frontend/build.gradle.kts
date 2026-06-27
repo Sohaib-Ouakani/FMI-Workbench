@@ -25,7 +25,7 @@ kotlin {
         browser {
             commonWebpackConfig {
                 devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-                    port = 8081   // <-- porta desiderata per il frontend
+                    port = 8081
                 }
             }
         }

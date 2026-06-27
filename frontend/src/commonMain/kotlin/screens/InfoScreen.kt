@@ -8,10 +8,21 @@ import TextPrimary
 import TextSecondary
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,13 +35,17 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.boolean
+import kotlinx.serialization.json.jsonPrimitive
 
 class InfoScreen(val info: JsonObject) : Screen {
 
     @Composable
     override fun Content() {
-        val navigator   = LocalNavigator.currentOrThrow
+        val navigator = LocalNavigator.currentOrThrow
         val canSimulate = info["canSimulate"]?.jsonPrimitive?.boolean ?: false
         val variables: Map<String, String> = (info["variables"] as? JsonObject)
             ?.mapValues { it.value.jsonPrimitive.content } ?: emptyMap()
@@ -42,7 +57,7 @@ class InfoScreen(val info: JsonObject) : Screen {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.background),
         ) {
             Column(
                 modifier = Modifier
@@ -50,7 +65,6 @@ class InfoScreen(val info: JsonObject) : Screen {
                     .padding(horizontal = 32.dp, vertical = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-
                 // ── Header ────────────────────────────────────────────────────
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -74,9 +88,9 @@ class InfoScreen(val info: JsonObject) : Screen {
                         .height(1.dp)
                         .background(
                             Brush.horizontalGradient(
-                                listOf(Color.Transparent, AccentCyan.copy(0.5f), Color.Transparent)
-                            )
-                        )
+                                listOf(Color.Transparent, AccentCyan.copy(0.5f), Color.Transparent),
+                            ),
+                        ),
                 )
 
                 // ── Two-column body ───────────────────────────────────────────
@@ -95,10 +109,12 @@ class InfoScreen(val info: JsonObject) : Screen {
                                 items(metaEntries.toList()) { (key, value) ->
                                     when (value) {
                                         is JsonPrimitive -> MetaRow(key, value.content.ifBlank { "—" })
-                                        is JsonArray     -> MetaRow(
+
+                                        is JsonArray -> MetaRow(
                                             key,
-                                            value.joinToString(", ") { it.jsonPrimitive.content }
+                                            value.joinToString(", ") { it.jsonPrimitive.content },
                                         )
+
                                         else -> {}
                                     }
                                 }
@@ -217,15 +233,16 @@ class InfoScreen(val info: JsonObject) : Screen {
                 style = MaterialTheme.typography.bodySmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-            )        }
+            )
+        }
         Spacer(modifier = Modifier.height(1.dp))
     }
 }
 
 @Composable
 private fun SimCapabilityBadge(canSimulate: Boolean) {
-    val color  = if (canSimulate) AccentGreen else AccentRed
-    val label  = if (canSimulate) "CO-SIM CAPABLE" else "MODEL EXCHANGE"
+    val color = if (canSimulate) AccentGreen else AccentRed
+    val label = if (canSimulate) "CO-SIM CAPABLE" else "MODEL EXCHANGE"
     Box(
         modifier = Modifier
             .background(color.copy(0.12f))

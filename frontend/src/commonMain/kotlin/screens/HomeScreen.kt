@@ -1,8 +1,8 @@
 package screens
 
+import AccentAmber
 import AccentCyan
 import AccentGreen
-import AccentAmber
 import AccentRed
 import BgElevated
 import BgSurface
@@ -15,9 +15,30 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -31,8 +52,8 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.example.fmi_client.client.fetchInfo
-import com.example.fmi_client.client.uploadFile
+import client.fetchInfo
+import client.uploadFile
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
@@ -44,18 +65,18 @@ class HomeScreen : Screen {
 
     @Composable
     override fun Content() {
-        val scope      = rememberCoroutineScope()
-        val navigator  = LocalNavigator.currentOrThrow
+        val scope = rememberCoroutineScope()
+        val navigator = LocalNavigator.currentOrThrow
 
-        var info      by remember { mutableStateOf<JsonObject?>(null) }
-        var fileName  by remember { mutableStateOf<String?>(null) }
+        var info by remember { mutableStateOf<JsonObject?>(null) }
+        var fileName by remember { mutableStateOf<String?>(null) }
         var isLoading by remember { mutableStateOf(false) }
-        var errorMsg  by remember { mutableStateOf<String?>(null) }
-        var uploadOk  by remember { mutableStateOf(false) }
+        var errorMsg by remember { mutableStateOf<String?>(null) }
+        var uploadOk by remember { mutableStateOf(false) }
 
         val launcher = rememberFilePickerLauncher(
             mode = FileKitMode.Single,
-            type = FileKitType.File()
+            type = FileKitType.File(),
         ) { file ->
             file?.let {
                 fileName = file.name
@@ -76,7 +97,7 @@ class HomeScreen : Screen {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.background),
         ) {
             Column(
                 modifier = Modifier
@@ -84,7 +105,6 @@ class HomeScreen : Screen {
                     .padding(horizontal = 32.dp, vertical = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
-
                 // ── Top bar ───────────────────────────────────────────────────
                 TopBar()
 
@@ -112,7 +132,7 @@ class HomeScreen : Screen {
                         onInspectClick = {
                             scope.launch {
                                 isLoading = true
-                                errorMsg  = null
+                                errorMsg = null
                                 try {
                                     info = fetchInfo()
                                     info?.let { navigator.push(InfoScreen(it)) }
@@ -175,9 +195,9 @@ private fun TopBar() {
             .height(1.dp)
             .background(
                 Brush.horizontalGradient(
-                    listOf(Color.Transparent, AccentCyan.copy(alpha = 0.6f), Color.Transparent)
-                )
-            )
+                    listOf(Color.Transparent, AccentCyan.copy(alpha = 0.6f), Color.Transparent),
+                ),
+            ),
     )
 }
 
@@ -185,9 +205,9 @@ private fun TopBar() {
 private fun StatusStrip(fileName: String?, uploadOk: Boolean, errorMsg: String?) {
     val (label, color) = when {
         errorMsg != null -> "ERROR: $errorMsg" to AccentRed
-        uploadOk         -> "FMU LOADED · ${fileName ?: "unknown"}" to AccentGreen
+        uploadOk -> "FMU LOADED · ${fileName ?: "unknown"}" to AccentGreen
         fileName != null -> "UPLOADING · $fileName" to AccentAmber
-        else             -> "READY · No FMU loaded" to TextSecondary
+        else -> "READY · No FMU loaded" to TextSecondary
     }
     Row(
         modifier = Modifier
@@ -203,7 +223,7 @@ private fun StatusStrip(fileName: String?, uploadOk: Boolean, errorMsg: String?)
         Box(
             modifier = Modifier
                 .size(8.dp)
-                .background(color.copy(alpha = alpha))
+                .background(color.copy(alpha = alpha)),
         )
         Text(
             text = label,
@@ -217,12 +237,7 @@ private fun StatusStrip(fileName: String?, uploadOk: Boolean, errorMsg: String?)
 }
 
 @Composable
-private fun UploadPanel(
-    modifier: Modifier,
-    fileName: String?,
-    uploadOk: Boolean,
-    onUploadClick: () -> Unit,
-) {
+private fun UploadPanel(modifier: Modifier, fileName: String?, uploadOk: Boolean, onUploadClick: () -> Unit) {
     val borderColor by animateColorAsState(
         if (uploadOk) AccentGreen else BorderSubtle,
         animationSpec = tween(400),
@@ -243,7 +258,7 @@ private fun UploadPanel(
                     .border(
                         width = 1.dp,
                         brush = Brush.verticalGradient(
-                            listOf(AccentCyan.copy(0.3f), BorderSubtle)
+                            listOf(AccentCyan.copy(0.3f), BorderSubtle),
                         ),
                         shape = RectangleShape,
                     ),
@@ -286,12 +301,7 @@ private fun UploadPanel(
 }
 
 @Composable
-private fun InspectPanel(
-    modifier: Modifier,
-    isLoading: Boolean,
-    canInspect: Boolean,
-    onInspectClick: () -> Unit,
-) {
+private fun InspectPanel(modifier: Modifier, isLoading: Boolean, canInspect: Boolean, onInspectClick: () -> Unit) {
     EngineeringCard(modifier = modifier) {
         Column(
             modifier = Modifier.fillMaxSize().padding(24.dp),
@@ -328,7 +338,7 @@ private fun HintBar() {
         modifier = Modifier
             .fillMaxWidth()
             .height(1.dp)
-            .background(BorderSubtle)
+            .background(BorderSubtle),
     )
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -350,7 +360,7 @@ fun EngineeringCard(
     Column(
         modifier = modifier
             .background(BgSurface)
-            .border(1.dp, borderColor)
+            .border(1.dp, borderColor),
     ) {
         content()
     }
@@ -383,23 +393,23 @@ fun EngButton(
     enabled: Boolean = true,
     showLoader: Boolean = false,
 ) {
-    val bg     = if (isPrimary) AccentCyan else BgElevated
-    val fg     = if (isPrimary) Color(0xFF0A0E14) else AccentCyan
+    val bg = if (isPrimary) AccentCyan else BgElevated
+    val fg = if (isPrimary) Color(0xFF0A0E14) else AccentCyan
     val border = if (isPrimary) AccentCyan else AccentCyan.copy(0.4f)
 
     Button(
-        onClick  = onClick,
-        enabled  = enabled,
+        onClick = onClick,
+        enabled = enabled,
         modifier = modifier,
-        colors   = ButtonDefaults.buttonColors(
-            containerColor         = bg,
-            contentColor           = fg,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = bg,
+            contentColor = fg,
             disabledContainerColor = BgElevated,
-            disabledContentColor   = TextSecondary,
+            disabledContentColor = TextSecondary,
         ),
         border = BorderStroke(1.dp, border),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
-        shape   = RectangleShape,
+        shape = RectangleShape,
     ) {
         if (showLoader) {
             CircularProgressIndicator(

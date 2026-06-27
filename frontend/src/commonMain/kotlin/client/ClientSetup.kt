@@ -1,4 +1,4 @@
-package com.example.fmi_client.client
+package client
 
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.name
@@ -48,8 +48,6 @@ data class SimulationResult(
     val config: SimulationConfig,
 )
 
-
-
 suspend fun initApi(): Boolean {
     val response = ApiClient.client.post("http://localhost:8080/fmi/init")
 
@@ -59,7 +57,7 @@ suspend fun fetchInfo(): JsonObject {
     val initialized = initApi()
     if (!initialized) error("FMU not ready: upload an FMU first")
 
-    val jsonString =  ApiClient.client.get("http://localhost:8080/fmi/info").bodyAsText()
+    val jsonString = ApiClient.client.get("http://localhost:8080/fmi/info").bodyAsText()
     val json = Json.parseToJsonElement(jsonString)
 
     return json.jsonObject
@@ -88,4 +86,3 @@ suspend fun runSimulation(config: SimulationConfig): SimulationResult {
     }
     return response.body<SimulationResult>()
 }
-
