@@ -22,8 +22,6 @@ import requestHandler.RequestHandler
 
 // The server has no per-test mutable state, so it is started once for the
 // entire class via a lazy-init guard in @BeforeTest.
-// NOTE: @BeforeTest/@AfterTest must NOT be suspend on Kotlin/Native.
-//       Use runBlocking explicitly for any coroutine work.
 class HealthRoutingTest {
 
     private lateinit var server: EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>

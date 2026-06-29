@@ -16,8 +16,7 @@ class CleanUpTest {
     @Test
     fun `fmu service is closed when server stops`() = runBlocking {
         val fmu = FakeFmuService()
-        // port = 0 lets the OS pick a free port, avoiding any collision
-        // with the other test-server classes.
+        // port = 0 lets the OS pick a free port, avoiding any collision with the other test-server classes.
         val server = embeddedServer(CIO, port = 0) {
             configureCors()
             configureRouting(requestHandler = RequestHandler(FakeResourceManager(), fmu))

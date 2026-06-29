@@ -17,10 +17,9 @@ class DefaultResourceManagerTest {
 
     @BeforeTest
     fun setup() {
-        // Unique per-test directory: pid + random int guards against both
-        // inter-process collisions and same-process parallel test runs.
+        // Unique per-test directory: random int guards
         tmpDir = "/tmp/rm_test_${Random.nextInt()}"
-        SystemFileSystem.createDirectories(Path(tmpDir)) // 0o777
+        SystemFileSystem.createDirectories(Path(tmpDir))
     }
 
     @AfterTest

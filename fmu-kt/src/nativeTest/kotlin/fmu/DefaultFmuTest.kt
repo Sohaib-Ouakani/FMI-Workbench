@@ -9,8 +9,6 @@ import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 import wrapper.simulation.config.SimulationConfig
 
-// Helper: resolve path to the BouncingBall.fmu bundled in test resources.
-// The test binary working directory is the module root when run via Gradle.
 private const val BOUNCING_BALL_FMU = "src/nativeTest/resources/BouncingBall.fmu"
 
 private fun tempDir(name: String): String {

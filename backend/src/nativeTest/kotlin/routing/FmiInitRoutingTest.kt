@@ -24,7 +24,6 @@ import requestHandler.RequestHandler
 // The server is started once per class via a lazy-init guard.
 // Because tests mutate rm/fmu to inject errors, those fakes are reset in
 // @BeforeTest so every test starts from a clean slate without a server restart.
-// NOTE: @BeforeTest/@AfterTest must NOT be suspend on Kotlin/Native.
 class FmiInitRoutingTest {
 
     private lateinit var server: EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>

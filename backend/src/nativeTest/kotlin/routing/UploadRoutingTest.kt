@@ -27,9 +27,8 @@ import requestHandler.RequestHandler
 
 private const val BODY_SIZE = 64
 
-// The server is started once per class.  Because individual tests assert on
-// FakeResourceManager state (lastSavedFileName, etc.), the fake is reset in
-// @BeforeTest without restarting the server.
+// The server is started once per class.
+// The FakeResourceManager is reset in @BeforeTest without restarting the server.
 class UploadRoutingTest {
 
     private lateinit var server: EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>
