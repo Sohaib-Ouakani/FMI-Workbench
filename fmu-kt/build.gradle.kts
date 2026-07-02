@@ -9,7 +9,7 @@ plugins {
     id("com.google.devtools.ksp") version "2.3.9"
 }
 
-group = "org.findaname"
+group = "org.org.fmi-workbench"
 
 repositories {
     google()

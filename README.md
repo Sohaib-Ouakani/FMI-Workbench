@@ -1,4 +1,4 @@
-# Kotlin Multiplatform FMU Simulator
+# FMI Workbench — Kotlin Multiplatform FMU Simulator
 
 A full-stack app, written **entirely in Kotlin**, for loading, inspecting, and simulating [FMU](https://fmi-standard.org/) (Functional Mock-up Unit) models compliant with **FMI 2.0**.
 

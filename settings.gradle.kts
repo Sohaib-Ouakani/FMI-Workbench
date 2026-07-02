@@ -31,4 +31,4 @@ include("fmilib")
 include("fmu-kt")
 include("frontend")
 
-rootProject.name = "Findaname-Project".lowercase()
+rootProject.name = "FMI-Workbench".lowercase()

@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.kotlinxSerialization)
 }
 
-group = "org.findaname"
+group = "org.org.fmi-workbench"
 
 repositories {
     google()
