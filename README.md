@@ -64,7 +64,7 @@ Kotlin Multiplatform / Kotlin·Native · [Ktor](https://ktor.io/) · [Compose Mu
 ## Getting started
 
 ```bash
-git clone --recurse-submodules <repo-url>
+git clone --recurse-submodules https://github.com/Sohaib-Ouakani/FMI-Workbench.git
 
 ./gradlew build
 
