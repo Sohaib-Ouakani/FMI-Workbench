@@ -36,7 +36,7 @@ kotlin {
     }
     val nativeSetup: KotlinNativeTarget.() -> Unit = {
         val platformDir = fmilibInstallDir
-            .resolve(platformDirName[targetName] ?: error("Platform $targetName sconosciuta"))
+            .resolve(platformDirName[targetName] ?: error("Platform $targetName uknown"))
         val includeDir = platformDir.resolve("include")
         val libDir = platformDir.resolve("lib")
 
@@ -128,7 +128,7 @@ tasks.withType<KotlinNativeTest>().configureEach {
             val newPath = binDirs.joinToString(File.pathSeparator) { it.absolutePath } +
                 File.pathSeparator + currentPath
             environment("PATH", newPath)
-            logger.lifecycle("PATH per mingwX64Test: $newPath")
+            logger.lifecycle("PATH for mingwX64Test: $newPath")
         }
     }
 }

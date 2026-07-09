@@ -5,15 +5,10 @@ plugins {
     `lifecycle-base`
 }
 
-//machines.customMachines.register("linux-amd64") {
-//    toolchainFile.set(file("linux-x86-64.toolchain.cmake"))
-//}
-
 cmake {
     targets {
         create("fmilib") {
             cmakeLists = file("lib/CMakeLists.txt")
-//            targetMachines.addAll(machines.customMachines)
             targetMachines.add(machines.host)
         }
     }
@@ -29,7 +24,7 @@ val cmakeInstall by tasks.registering {
     val execOps = project.serviceOf<ExecOperations>()
     doLast {
         val platformDirs = fmilibBuildDir.listFiles()?.filter { it.isDirectory }
-            ?: error("cmake build dir non trovata in $fmilibBuildDir")
+            ?: error("cmake build dir not found in $fmilibBuildDir")
         platformDirs.forEach { platformDir ->
             val platformInstallDir = fmilibInstallDir.resolve(platformDir.name)
             execOps.exec {
