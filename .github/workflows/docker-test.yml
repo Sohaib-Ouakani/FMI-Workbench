@@ -32,7 +32,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          tags: fmiWorkbench:test
+          tags: myapp:test
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           load: true
@@ -44,7 +44,7 @@ jobs:
 
       - name: Run container in background
         run: |
-          docker run -d --name fmiWorkbench -p 8080:8080 fmiWorkbench:test
+          docker run -d --name myapp -p 8080:8080 myapp:test
 
       - name: Wait for service to be ready
         run: |
@@ -61,8 +61,8 @@ jobs:
 
       - name: Print container logs on failure
         if: failure()
-        run: docker logs fmiWorkbench
+        run: docker logs myapp
 
       - name: Stop and remove container
         if: always()
-        run: docker rm -f fmiWorkbench || true
+        run: docker rm -f myapp || true
