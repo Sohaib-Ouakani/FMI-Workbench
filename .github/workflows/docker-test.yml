@@ -31,11 +31,11 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile          # adjust if Dockerfile is not at root
+          file: ./Dockerfile
           tags: myapp:test
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-          load: true                  # load image into local Docker daemon
+          load: true
 
       - name: Move cache
         run: |
@@ -57,10 +57,7 @@ jobs:
           echo "Service did not become healthy in time"
           exit 1
 
-      - name: (Optional) Run integration tests against container
-        run: |
-          curl --fail http://localhost:8080/health || exit 1
-          # Add more API endpoints checks as needed
+#      - name: (Optional) Run integration tests against container
 
       - name: Print container logs on failure
         if: failure()
